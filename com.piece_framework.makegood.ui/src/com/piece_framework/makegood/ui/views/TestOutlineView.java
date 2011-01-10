@@ -87,6 +87,7 @@ public class TestOutlineView extends ViewPart {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
         viewer.setInput(testClasses);
+        viewer.expandAll();
     }
 
     void resetViewerInput() {
