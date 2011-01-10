@@ -117,10 +117,37 @@ public class TestOutlineView extends ViewPart {
         IMember member = (IMember) selection.getFirstElement();
         if (member.getSourceModule() == null) return;
 
+        IEditorPart target = findTargetEditor(member);
+
+        ISourceRange nameRange = null;
+        try {
+            nameRange = member.getNameRange();
+        } catch (ModelException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        boolean editorIsOpened = target != null;
+        if (editorIsOpened) {
+            IWorkbenchPage page = target.getSite().getPage();
+            if (page.getActiveEditor() != target) page.activate(target);
+
+            ((ITextEditor) target).selectAndReveal(
+                nameRange.getOffset(),
+                nameRange.getLength());
+        } else if (!editorIsOpened && openWhenClosed) {
+            EditorOpener.open(
+                (IFile) member.getResource(),
+                nameRange.getOffset(),
+                nameRange.getLength());
+        }
+    }
+
+    private IEditorPart findTargetEditor(IMember member) {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window == null) return;
+        if (window == null) return null;
         IWorkbenchPage page = window.getActivePage();
-        if (page == null) return;
+        if (page == null) return null;
 
         IEditorPart target = null;
         for (IEditorReference reference: page.getEditorReferences()) {
@@ -131,25 +158,7 @@ public class TestOutlineView extends ViewPart {
                 break;
             }
         }
-
-        ISourceRange nameRange = null;
-        try {
-            nameRange = member.getNameRange();
-        } catch (ModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        if (target != null) {
-            if (page.getActiveEditor() != target) page.activate(target);
-            ((ITextEditor) target).selectAndReveal(
-                nameRange.getOffset(),
-                nameRange.getLength());
-        } else if (openWhenClosed) {
-            EditorOpener.open(
-                (IFile) member.getResource(),
-                nameRange.getOffset(),
-                nameRange.getLength());
-        }
+        return target;
     }
 
     private class TreeSelectionChangedListener implements ISelectionChangedListener {
