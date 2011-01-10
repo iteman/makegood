@@ -66,10 +66,12 @@ public class EditorParser {
     }
 
     public ISourceModule getSourceModule() {
+        if (editor == null) return null;
         return EditorUtility.getEditorInputModelElement(editor, false);
     }
 
     public IModelElement getModelElementOnSelection() {
+        if (editor == null) return null;
         ITextEditor textEditor = (ITextEditor) editor;
         ISelectionProvider provider = (ISelectionProvider) textEditor.getSelectionProvider();
         ITextSelection selection = (ITextSelection) provider.getSelection();
@@ -94,6 +96,7 @@ public class EditorParser {
     }
 
     public List<IType> getTypes() {
+        if (editor == null) return null;
         ISourceModule source = getSourceModule();
         if (source == null) {
             return null;
