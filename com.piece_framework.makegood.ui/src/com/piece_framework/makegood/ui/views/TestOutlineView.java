@@ -14,12 +14,15 @@ package com.piece_framework.makegood.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -54,6 +57,33 @@ public class TestOutlineView extends ViewPart {
         viewer.setLabelProvider(new TestOutlineLabelProvider());
         setViewerInput();
         setViewerSelection();
+
+        viewer.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                if (event.getSelection().isEmpty()) return;
+                Assert.isTrue(event.getSelection() instanceof StructuredSelection);
+                StructuredSelection selection = (StructuredSelection) event.getSelection();
+
+                Assert.isTrue(selection.getFirstElement() instanceof IMember);
+                IMember member = (IMember) selection.getFirstElement();
+
+                Assert.isTrue(ActiveEditor.isPHP());
+
+                if (EditorParser.createActiveEditorParser().getSourceModule()
+                    == member.getSourceModule()) return;
+
+                try {
+                    ISourceRange nameRange = member.getNameRange();
+                    EditorOpener.open((IFile) member.getResource(),
+                                      nameRange.getOffset(),
+                                      nameRange.getLength());
+                } catch (ModelException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override

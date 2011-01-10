@@ -137,6 +137,18 @@ public class EditorOpener {
         }
     }
 
+    /**
+     * @since 1.4.0
+     */
+    public static IEditorPart open(IFile file, int offset, int length) {
+        IEditorPart editorPart = open(file);
+        if (editorPart == null) return null;
+        if (editorPart instanceof ITextEditor) {
+            ((ITextEditor) editorPart).selectAndReveal(offset, length);
+        }
+        return editorPart;
+    }
+
     private static void gotoLine(ITextEditor editor, Integer line) {
         IRegion region;
 
