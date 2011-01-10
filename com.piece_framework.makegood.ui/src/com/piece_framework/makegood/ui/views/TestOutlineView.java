@@ -32,6 +32,11 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -65,23 +70,7 @@ public class TestOutlineView extends ViewPart {
                 Assert.isTrue(event.getSelection() instanceof StructuredSelection);
                 StructuredSelection selection = (StructuredSelection) event.getSelection();
 
-                Assert.isTrue(selection.getFirstElement() instanceof IMember);
-                IMember member = (IMember) selection.getFirstElement();
-
-                Assert.isTrue(ActiveEditor.isPHP());
-
-                if (EditorParser.createActiveEditorParser().getSourceModule()
-                    == member.getSourceModule()) return;
-
-                try {
-                    ISourceRange nameRange = member.getNameRange();
-                    EditorOpener.open((IFile) member.getResource(),
-                                      nameRange.getOffset(),
-                                      nameRange.getLength());
-                } catch (ModelException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                showEditor(selection, true);
             }
         });
     }
@@ -123,6 +112,46 @@ public class TestOutlineView extends ViewPart {
         return viewer != null && viewer.getInput() != null;
     }
 
+    private void showEditor(StructuredSelection selection, Boolean openWhenClosed) {
+        Assert.isTrue(selection.getFirstElement() instanceof IMember);
+        IMember member = (IMember) selection.getFirstElement();
+        if (member.getSourceModule() == null) return;
+
+        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (window == null) return;
+        IWorkbenchPage page = window.getActivePage();
+        if (page == null) return;
+
+        IEditorPart target = null;
+        for (IEditorReference reference: page.getEditorReferences()) {
+            IEditorPart editor = reference.getEditor(true);
+            EditorParser parser = new EditorParser(editor);
+            if (member.getSourceModule().equals(parser.getSourceModule())) {
+                target = editor;
+                break;
+            }
+        }
+
+        ISourceRange nameRange = null;
+        try {
+            nameRange = member.getNameRange();
+        } catch (ModelException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (target != null) {
+            if (page.getActiveEditor() != target) page.activate(target);
+            ((ITextEditor) target).selectAndReveal(
+                nameRange.getOffset(),
+                nameRange.getLength());
+        } else if (openWhenClosed) {
+            EditorOpener.open(
+                (IFile) member.getResource(),
+                nameRange.getOffset(),
+                nameRange.getLength());
+        }
+    }
+
     private class TreeSelectionChangedListener implements ISelectionChangedListener {
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
@@ -130,23 +159,7 @@ public class TestOutlineView extends ViewPart {
             Assert.isTrue(event.getSelection() instanceof StructuredSelection);
             StructuredSelection selection = (StructuredSelection) event.getSelection();
 
-            Assert.isTrue(selection.getFirstElement() instanceof IMember);
-            IMember member = (IMember) selection.getFirstElement();
-
-            Assert.isTrue(ActiveEditor.isPHP());
-
-            if (EditorParser.createActiveEditorParser().getSourceModule()
-                != member.getSourceModule()) return;
-
-            try {
-                ISourceRange nameRange = member.getNameRange();
-                ((ITextEditor) ActiveEditor.get()).selectAndReveal(
-                    nameRange.getOffset(),
-                    nameRange.getLength());
-            } catch (ModelException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            showEditor(selection, false);
         }
     }
 
