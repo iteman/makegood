@@ -21,6 +21,7 @@ import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -32,6 +33,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -60,6 +62,15 @@ public class TestOutlineView extends ViewPart {
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new TestOutlineLabelProvider());
+
+        MenuManager contextMenuManager = new MenuManager();
+        contextMenuManager.setRemoveAllWhenShown(true);
+        Menu contextMenu = contextMenuManager.createContextMenu(viewer.getTree());
+        viewer.getTree().setMenu(contextMenu);
+
+        getSite().registerContextMenu(contextMenuManager, viewer);
+        getSite().setSelectionProvider(viewer);
+
         setViewerInput();
         setViewerSelection();
 
