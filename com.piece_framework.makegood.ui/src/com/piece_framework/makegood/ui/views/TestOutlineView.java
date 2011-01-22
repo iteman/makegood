@@ -89,7 +89,7 @@ public class TestOutlineView extends ViewPart {
     @Override
     public void setFocus() {}
 
-    void setViewerInput() {
+    public void setViewerInput() {
         if (!ActiveEditor.isPHP()) return;
         EditorParser parser = EditorParser.createActiveEditorParser();
         List<IType> testClasses = PHPResource.getTestClasses(parser.getSourceModule());
@@ -101,13 +101,13 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
-    void resetViewerInput() {
+    public void resetViewerInput() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
         viewer.setInput(null);
     }
 
-    void setViewerSelection() {
+    public void setViewerSelection() {
         if (!ActiveEditor.isPHP()) return;
         if (!hasContent()) return;
 
@@ -120,7 +120,7 @@ public class TestOutlineView extends ViewPart {
         viewer.addSelectionChangedListener(selectionChangedListener);
     }
 
-    boolean hasContent() {
+    public boolean hasContent() {
         return viewer != null && viewer.getInput() != null;
     }
 

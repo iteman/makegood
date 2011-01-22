@@ -9,7 +9,7 @@
  * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package com.piece_framework.makegood.ui.views;
+package com.piece_framework.makegood.ui;
 
 import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -21,6 +21,8 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartReference;
 
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
+import com.piece_framework.makegood.ui.views.TestOutlineView;
+import com.piece_framework.makegood.ui.views.ViewShow;
 
 public class TestOutlinePartListener implements IPartListener2 {
     @Override

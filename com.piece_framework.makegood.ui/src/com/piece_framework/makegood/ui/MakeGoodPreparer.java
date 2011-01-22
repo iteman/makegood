@@ -25,7 +25,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import com.piece_framework.makegood.ui.views.ResultViewController;
-import com.piece_framework.makegood.ui.views.TestOutlinePartListener;
 
 public class MakeGoodPreparer implements IStartup {
     @Override
