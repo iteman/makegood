@@ -21,12 +21,13 @@ import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
+import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
+import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -61,7 +62,7 @@ public class TestOutlineView extends ViewPart {
 
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
-        viewer.setLabelProvider(new TestOutlineLabelProvider());
+        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
@@ -240,14 +241,5 @@ public class TestOutlineView extends ViewPart {
         public void inputChanged(Viewer viewer,
                                  Object oldInput,
                                  Object newInput) {}
-    }
-
-    private class TestOutlineLabelProvider extends LabelProvider {
-        @Override
-        public String getText(Object element) {
-            if (element instanceof IType) return ((IType) element).getTypeQualifiedName();
-            if (element instanceof IMethod) return ((IMethod) element).getElementName();
-            return null;
-        }
     }
 }
