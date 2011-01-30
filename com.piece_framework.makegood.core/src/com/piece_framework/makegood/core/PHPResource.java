@@ -49,8 +49,11 @@ public class PHPResource {
 
         try {
             for (IType type: source.getAllTypes()) {
-                if (!PHPFlags.isClass(type.getFlags())) continue;
-                if (PHPFlags.isAbstract(type.getFlags())) continue;
+                // The PHPFlags class is not used because it fail the weaving.
+                int flag = type.getFlags();
+                boolean isNotClass = (flag & Modifiers.AccNameSpace) != 0
+                                     || (flag & Modifiers.AccInterface) != 0;
+                if (isNotClass) continue;
                 for (String testClassSuperType: testClassSuperTypes) {
                     if (hasTests(type, testClassSuperType)) {
                         return true;
