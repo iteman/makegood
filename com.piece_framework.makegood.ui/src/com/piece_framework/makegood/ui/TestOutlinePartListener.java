@@ -24,6 +24,9 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.TestOutlineView;
 import com.piece_framework.makegood.ui.views.ViewOpener;
 
+/**
+ * @since 1.3.0
+ */
 public class TestOutlinePartListener implements IPartListener2 {
     @Override
     public void partActivated(IWorkbenchPartReference partReference) {

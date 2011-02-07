@@ -50,6 +50,9 @@ import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
+/**
+ * @since 1.3.0
+ */
 public class TestOutlineView extends ViewPart {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
 
@@ -93,6 +96,9 @@ public class TestOutlineView extends ViewPart {
     @Override
     public void setFocus() {}
 
+    /**
+     * @since 1.3.0
+     */
     public void setViewerInput() {
         for (Job job: Job.getJobManager().find(null)) {
             if (job.getName().startsWith("DLTK indexing")) {
@@ -118,12 +124,18 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
+    /**
+     * @since 1.3.0
+     */
     public void resetViewerInput() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
         viewer.setInput(null);
     }
 
+    /**
+     * @since 1.3.0
+     */
     public void setViewerSelection() {
         if (!ActiveEditor.isPHP()) return;
         if (!hasContent()) return;
@@ -137,6 +149,9 @@ public class TestOutlineView extends ViewPart {
         viewer.addSelectionChangedListener(selectionChangedListener);
     }
 
+    /**
+     * @since 1.3.0
+     */
     public boolean hasContent() {
         return viewer != null && viewer.getInput() != null;
     }
