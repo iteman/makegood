@@ -31,6 +31,7 @@
             restorable="true">
       </view>
       <view
+            category="com.piece_framework.makegood.ui.views.makeGoodCategory"
             class="com.piece_framework.makegood.ui.views.TestOutlineView"
             icon="icons/testOutlineView.gif"
             id="com.piece_framework.makegood.ui.views.testOutlineView"
