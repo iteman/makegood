@@ -44,7 +44,9 @@ public class TestOutlinePartListener implements IPartListener2 {
         editor.addPropertyListener(new IPropertyListener() {
             @Override
             public void propertyChanged(Object source, int propertyId) {
-                // TODO: when source changed
+                // Find the TestOutlineView again because the view might be closed.
+                TestOutlineView view = (TestOutlineView) ViewShow.find(TestOutlineView.ID);
+                if (view != null) view.setViewerInput();
             }
         });
 
