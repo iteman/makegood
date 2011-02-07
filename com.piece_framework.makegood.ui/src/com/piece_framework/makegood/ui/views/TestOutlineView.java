@@ -16,6 +16,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
@@ -91,7 +94,20 @@ public class TestOutlineView extends ViewPart {
     public void setFocus() {}
 
     public void setViewerInput() {
+        for (Job job: Job.getJobManager().find(null)) {
+            if (job.getName().startsWith("DLTK indexing")) {
+                job.addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void done(IJobChangeEvent event) {
+                        setViewerInput();
+                    }
+                });
+                return;
+            }
+        }
+
         if (!ActiveEditor.isPHP()) return;
+
         EditorParser parser = EditorParser.createActiveEditorParser();
         List<IType> testClasses = PHPResource.getTestClasses(parser.getSourceModule());
         if (testClasses.size() == 0) return;
