@@ -567,5 +567,18 @@
             icon="icons/error-gray.gif">
       </specification>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.php.perspective">
+         <view
+               id="com.piece_framework.makegood.ui.views.testOutlineView"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.views.ContentOutline"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
 
 </plugin>

@@ -48,7 +48,7 @@ public class TestOutlinePartListener implements IPartListener2 {
             @Override
             public void propertyChanged(Object source, int propertyId) {
                 // Find the TestOutlineView again because the view might be closed.
-                TestOutlineView view = (TestOutlineView) ViewShow.find(TestOutlineView.ID);
+                TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
                 if (view != null) view.setViewerInput();
             }
         });
