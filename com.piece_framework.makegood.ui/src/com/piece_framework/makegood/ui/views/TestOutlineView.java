@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -47,6 +49,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.piece_framework.makegood.core.PHPResource;
+import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
@@ -167,8 +170,7 @@ public class TestOutlineView extends ViewPart {
         try {
             nameRange = member.getNameRange();
         } catch (ModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
         }
         if (nameRange == null) return;
 
@@ -236,8 +238,7 @@ public class TestOutlineView extends ViewPart {
                         if (PHPResource.isTestMethod(method)) children.add(method);
                     }
                 } catch (ModelException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
                 }
             } else if (parentElement instanceof IMethod) {
                 children = new ArrayList();
@@ -260,8 +261,7 @@ public class TestOutlineView extends ViewPart {
             try {
                 methods = ((IType) element).getMethods();
             } catch (ModelException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
             return methods.length > 0;
         }
