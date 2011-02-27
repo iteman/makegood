@@ -15,7 +15,11 @@ package com.piece_framework.makegood.ui.launch;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.dltk.core.DLTKCore;
 import org.eclipse.dltk.core.IModelElement;
+import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -25,6 +29,7 @@ import org.eclipse.ui.IFileEditorInput;
 import com.piece_framework.makegood.core.MakeGoodProperty;
 import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.launch.TestingTargets;
+import com.piece_framework.makegood.ui.Activator;
 
 public class AllTestsLaunchShortcut extends MakeGoodLaunchShortcut {
     @Override
@@ -42,7 +47,7 @@ public class AllTestsLaunchShortcut extends MakeGoodLaunchShortcut {
         }
         if (resource == null) throw new NotLaunchedException();
 
-        addTestFoldersAsTestingTargets(resource);
+        collectTestsInProject(resource);
 
         IResource mainScriptResource = TestingTargets.getInstance().getMainScriptResource();
         if (mainScriptResource == null) throw new NotLaunchedException();
@@ -63,14 +68,46 @@ public class AllTestsLaunchShortcut extends MakeGoodLaunchShortcut {
             return;
         }
 
-        addTestFoldersAsTestingTargets(target);
+        collectTestsInProject(target);
 
         super.launch(editor, mode);
     }
 
-    private void addTestFoldersAsTestingTargets(IResource resource) {
+    /**
+     * @since 1.4.0
+     */
+    private void collectTestsInProject(IResource resource) {
         for (IFolder testFolder: new MakeGoodProperty(resource).getTestFolders()) {
-            addTestingTarget(testFolder);
+            collectTestsInFolder(testFolder);
+        }
+
+        if (TestingTargets.getInstance().getCount() == 0) {
+            throw new NotLaunchedException();
+        }
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    private void collectTestsInFolder(IFolder folder) {
+        IResource[] members;
+
+        try {
+            members = folder.members();
+        } catch (CoreException e) {
+            Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+            return;
+        }
+
+        for (IResource member: members) {
+            if (member instanceof IFolder) {
+                collectTestsInFolder((IFolder) member);
+            } else if (member instanceof IFile) {
+                IModelElement element = DLTKCore.create(member);
+                if (element instanceof ISourceModule && PHPResource.hasTests((ISourceModule) element)) {
+                    addTestingTarget(member);
+                }
+            }
         }
     }
 }
