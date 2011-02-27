@@ -170,6 +170,7 @@ public class TestOutlineView extends ViewPart {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        if (nameRange == null) return;
 
         boolean editorIsOpened = target != null;
         if (editorIsOpened) {
