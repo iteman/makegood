@@ -20,7 +20,13 @@ import org.eclipse.ui.PlatformUI;
 
 import com.piece_framework.makegood.core.PHPResource;
 
+/**
+ * @since 1.4.0
+ */
 public class ActiveEditor {
+    /**
+     * @since 1.4.0
+     */
     public static boolean isPHP() {
         IEditorPart editor = get();
         if (editor == null) return false;
@@ -29,6 +35,9 @@ public class ActiveEditor {
         return PHPResource.isPHPSource(file);
     }
 
+    /**
+     * @since 1.4.0
+     */
     public static IEditorPart get() {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         if (window == null) return null;
