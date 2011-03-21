@@ -52,6 +52,7 @@ public class AllTestsLaunchShortcut extends MakeGoodLaunchShortcut {
         IResource mainScriptResource = TestingTargets.getInstance().getMainScriptResource();
         if (mainScriptResource == null) throw new NotLaunchedException();
 
+        TestingTargets.getInstance().markAsAllTests();
         super.launch(new StructuredSelection(mainScriptResource), mode);
     }
 
@@ -70,6 +71,7 @@ public class AllTestsLaunchShortcut extends MakeGoodLaunchShortcut {
 
         collectTestsInProject(target);
 
+        TestingTargets.getInstance().markAsAllTests();
         super.launch(editor, mode);
     }
 

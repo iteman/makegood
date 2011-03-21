@@ -24,6 +24,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate2;
 import org.eclipse.debug.internal.core.LaunchConfiguration;
 import org.eclipse.debug.internal.core.LaunchConfigurationWorkingCopy;
@@ -108,13 +109,13 @@ public class MakeGoodLaunchConfigurationDelegate extends PHPLaunchDelegateProxy 
         String mode,
         ILaunch launch,
         IProgressMonitor monitor) throws CoreException {
-        ILaunchConfiguration configuration = launch.getLaunchConfiguration();
-        if (configuration == null) {
+        ILaunchConfigurationWorkingCopy workingCopy = (ILaunchConfigurationWorkingCopy) launch.getLaunchConfiguration();
+        if (workingCopy == null) {
             cancelLaunch(monitor);
             return;
         }
 
-        if (!configuration.exists()) {
+        if (!workingCopy.exists()) {
             cancelLaunch(monitor);
             return;
         }
@@ -127,7 +128,12 @@ public class MakeGoodLaunchConfigurationDelegate extends PHPLaunchDelegateProxy 
         }
 
         try {
-            super.launch(configuration, mode, launch, monitor);
+            if (ILaunchManager.RUN_MODE.equals(mode) && TestingTargets.getInstance().isAllTests()) {
+                ((ILaunchConfigurationWorkingCopy) workingCopy).setAttribute(IPHPDebugConstants.RUN_WITH_DEBUG_INFO, false);
+                super.launch(workingCopy, mode, launch, monitor);
+            } else {
+                super.launch(workingCopy, mode, launch, monitor);
+            }
         } catch (CoreException e) {
             cancelLaunch(monitor);
             throw e;

@@ -51,6 +51,11 @@ public class TestingTargets {
     private IProject project;
 
     /**
+     * @since 1.4.0
+     */
+    private boolean isAllTests;
+
+    /**
      * @since 1.3.0
      */
     private static TestingTargets soleInstance;
@@ -367,6 +372,7 @@ public class TestingTargets {
      */
     public void clear() {
         targets.clear();
+        isAllTests = false;
     }
 
     /**
@@ -406,5 +412,19 @@ public class TestingTargets {
      */
     public int getCount() {
         return targets.size();
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public boolean isAllTests() {
+        return isAllTests;
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public void markAsAllTests() {
+        isAllTests = true;
     }
 }
