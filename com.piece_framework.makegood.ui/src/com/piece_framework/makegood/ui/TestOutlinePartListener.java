@@ -11,10 +11,6 @@
 
 package com.piece_framework.makegood.ui;
 
-import org.eclipse.jface.viewers.IPostSelectionProvider;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IPropertyListener;
@@ -52,19 +48,6 @@ public class TestOutlinePartListener implements IPartListener2 {
                 if (view != null) view.setViewerInput();
             }
         });
-
-        ISelectionProvider provider = editor.getEditorSite().getSelectionProvider();
-        if (provider instanceof IPostSelectionProvider) {
-            ((IPostSelectionProvider) provider).addPostSelectionChangedListener(new ISelectionChangedListener() {
-                @Override
-                public void selectionChanged(SelectionChangedEvent event) {
-                    TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
-                    if (view == null) return;
-                    if (!view.hasContent()) view.setViewerInput();
-                    view.setViewerSelection();
-                }
-            });
-        }
     }
 
     @Override
