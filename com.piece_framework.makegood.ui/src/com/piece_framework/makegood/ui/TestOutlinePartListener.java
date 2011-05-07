@@ -88,11 +88,7 @@ public class TestOutlinePartListener implements IPartListener2 {
                                    boolean forced,
                                    IProgressMonitor progressMonitor) {
                 if (!program.toString().equals(previousXML)) {
-                    for (Job job: Job.getJobManager().find(null)) {
-                        if (job.getName().startsWith("MakeGood Test Outline Update")) {
-                            return;
-                        }
-                    }
+                    if (Job.getJobManager().find("MakeGood Test Outline Update").length > 0) return;
 
                     Job job = new UIJob("MakeGood Test Outline Update") { //$NON-NLS-1$
                         @Override
@@ -103,6 +99,13 @@ public class TestOutlinePartListener implements IPartListener2 {
                                 view.setViewerInput();
                             }
                             return Status.OK_STATUS;
+                        }
+
+                        @Override
+                        public boolean belongsTo(Object family) {
+                            if (!(family instanceof String)) return super.belongsTo(family);
+
+                            return getName().equals((String) family);
                         }
                     };
                     job.schedule();
