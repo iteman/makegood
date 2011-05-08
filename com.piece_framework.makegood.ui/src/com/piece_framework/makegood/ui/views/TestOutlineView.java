@@ -108,7 +108,7 @@ public class TestOutlineView extends ViewPart {
                 job.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
-                        setViewerInput();
+                        TestOutlineUpdateJob.update();
                     }
                 });
                 return;
