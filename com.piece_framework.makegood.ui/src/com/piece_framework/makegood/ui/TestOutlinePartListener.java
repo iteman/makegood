@@ -46,7 +46,7 @@ public class TestOutlinePartListener implements IPartListener2 {
             view.setViewerSelection();
         }
 
-        addReconcileListener();
+        addReconcileListener(ActiveEditor.get());
     }
 
     @Override
@@ -76,8 +76,8 @@ public class TestOutlinePartListener implements IPartListener2 {
     public void partInputChanged(IWorkbenchPartReference partReference) {}
 
     @SuppressWarnings("restriction")
-    private void addReconcileListener() {
-        ((PHPStructuredEditor) ActiveEditor.get()).addReconcileListener(new IPhpScriptReconcilingListener() {
+    public static void addReconcileListener(IEditorPart editor) {
+        ((PHPStructuredEditor) editor).addReconcileListener(new IPhpScriptReconcilingListener() {
             private String previousXML;
 
             @Override
