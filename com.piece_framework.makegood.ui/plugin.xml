@@ -580,5 +580,16 @@
          </view>
       </perspectiveExtension>
    </extension>
+   <extension
+         point="org.eclipse.dltk.core.projectIndexer">
+      <projectIndexer
+            class="com.piece_framework.makegood.ui.ProjectIndexer"
+            id="com.piece_framework.makegood.ui.projectIndexer">
+      </projectIndexer>
+      <enable
+            indexer="com.piece_framework.makegood.ui.projectIndexer"
+            nature="org.eclipse.php.core.PHPNature">
+      </enable>
+   </extension>
 
 </plugin>
