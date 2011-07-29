@@ -12,6 +12,10 @@
 
 package com.piece_framework.makegood.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -56,6 +60,21 @@ public class PHPResource {
         }
 
         return false;
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public static List<IType> getTestClasses(ISourceModule source) {
+        List<IType> testClasses = new ArrayList<IType>();
+        try {
+            for (IType baseType : source.getAllTypes()) {
+                testClasses.add(baseType);
+            }
+        } catch (ModelException e) {
+            Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+        }
+        return Collections.unmodifiableList(testClasses);
     }
 
     /**

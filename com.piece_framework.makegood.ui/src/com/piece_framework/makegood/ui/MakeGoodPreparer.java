@@ -15,6 +15,8 @@ package com.piece_framework.makegood.ui;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -23,6 +25,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import com.piece_framework.makegood.ui.views.ResultViewController;
+import com.piece_framework.makegood.ui.views.TestOutlinePartListener;
 
 public class MakeGoodPreparer implements IStartup {
     @Override
@@ -35,9 +38,11 @@ public class MakeGoodPreparer implements IStartup {
      */
     private void prepare() {
         MakeGoodContext.getInstance().getStatusMonitor().addPreferenceChangeListener(new InstanceScope());
+        TestOutlinePartListener testOutlinePartListener = new TestOutlinePartListener();
         for (IWorkbenchWindow window: PlatformUI.getWorkbench().getWorkbenchWindows()) {
             for (IWorkbenchPage page: window.getPages()) {
                 page.addPartListener(MakeGoodContext.getInstance().getStatusMonitor());
+                page.addPartListener(testOutlinePartListener);
                 IWorkbenchPart activePart = page.getActivePart();
                 if (activePart != null) {
                     MakeGoodContext.getInstance().getActivePart().update(activePart);

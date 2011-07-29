@@ -23,9 +23,14 @@ import org.eclipse.dltk.core.ITypeHierarchy;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.ScriptModelUtil;
 import org.eclipse.dltk.internal.ui.editor.EditorUtility;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 
@@ -34,6 +39,23 @@ public class EditorParser {
 
     public EditorParser(IEditorPart editor) {
         this.editor = editor;
+    }
+
+    public EditorParser(IDocument target) {
+        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (window == null) return;
+        final IWorkbenchPage page = window.getActivePage();
+        if (page == null) return;
+
+        for (IEditorReference editorReference : page.getEditorReferences()) {
+            if (!(editorReference.getEditor(false) instanceof ITextEditor)) continue;
+            ITextEditor editor = (ITextEditor) editorReference.getEditor(false);
+            Object document = editor.getAdapter(IDocument.class);
+            if (document == null || document != target) continue;
+
+            this.editor = editor;
+            break;
+        }
     }
 
     public ISourceModule getSourceModule() {
@@ -91,5 +113,9 @@ public class EditorParser {
             );
         }
         return types;
+    }
+
+    public IEditorPart getEditor() {
+        return editor;
     }
 }

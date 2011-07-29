@@ -30,6 +30,12 @@
             name="%views.resultView.name"
             restorable="true">
       </view>
+      <view
+            class="com.piece_framework.makegood.ui.views.TestOutlineView"
+            id="com.piece_framework.makegood.ui.views.testOutlineView"
+            name="Test Outline"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
