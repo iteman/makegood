@@ -200,7 +200,7 @@ public class TestOutlineView extends ViewPart {
                 try {
                     children = new ArrayList<IMethod>();
                     for (IMethod method : ((IType) parentElement).getMethods()) {
-                        children.add(method);
+                        if (PHPResource.isTestMethod(method)) children.add(method);
                     }
                 } catch (ModelException e) {
                     // TODO Auto-generated catch block

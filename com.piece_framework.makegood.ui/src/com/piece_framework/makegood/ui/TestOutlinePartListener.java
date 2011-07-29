@@ -22,7 +22,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.TestOutlineView;
-import com.piece_framework.makegood.ui.views.ViewShow;
+import com.piece_framework.makegood.ui.views.ViewOpener;
 
 public class TestOutlinePartListener implements IPartListener2 {
     @Override

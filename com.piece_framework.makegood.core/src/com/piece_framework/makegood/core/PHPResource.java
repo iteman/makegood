@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.dltk.ast.Modifiers;
+import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ITypeHierarchy;
@@ -91,5 +93,21 @@ public class PHPResource {
             }
         }
         return false;
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public static boolean isTestMethod(IMethod method) throws ModelException {
+        if (method == null) return false;
+        if (!hasTests(method.getSourceModule())) return false;
+
+        // TODO Add the following check items.
+        // * The head of the method name is "test".
+        // * There is the @test annotation in PHPDoc of the method.
+
+        int flags = method.getFlags();
+        return (flags & Modifiers.AccPublic) > 0
+               && (flags & Modifiers.AccStatic) == 0;
     }
 }
