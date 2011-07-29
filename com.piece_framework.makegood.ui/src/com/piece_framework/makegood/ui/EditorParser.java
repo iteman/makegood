@@ -33,9 +33,16 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import com.piece_framework.makegood.ui.Activator;
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 public class EditorParser {
     private IEditorPart editor;
+
+    public static EditorParser createActiveEditorParser() {
+        if (!ActiveEditor.isPHP()) return null;
+        return new EditorParser(ActiveEditor.get());
+    }
 
     public EditorParser(IEditorPart editor) {
         this.editor = editor;
@@ -113,9 +120,5 @@ public class EditorParser {
             );
         }
         return types;
-    }
-
-    public IEditorPart getEditor() {
-        return editor;
     }
 }

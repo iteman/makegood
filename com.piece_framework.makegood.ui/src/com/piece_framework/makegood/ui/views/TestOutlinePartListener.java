@@ -11,7 +11,6 @@
 
 package com.piece_framework.makegood.ui.views;
 
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -19,24 +18,27 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IPropertyListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 
-import com.piece_framework.makegood.ui.views.ViewOpener;
-import com.piece_framework.makegood.ui.EditorParser;
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 public class TestOutlinePartListener implements IPartListener2 {
     @Override
     public void partActivated(IWorkbenchPartReference partReference) {
-        IWorkbenchPart activePart = partReference.getPage().getActivePart();
-        if (activePart == null) return;
-        if (!(activePart instanceof IEditorPart)) return;
-
-        IEditorPart editor = (IEditorPart) activePart;
+        boolean activatedIsEditor = partReference.getPage().getActivePart() instanceof IEditorPart;
+        if (!activatedIsEditor) return;
 
         TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
-        if (view != null) view.setViewerInput(new EditorParser(editor));
+        if (view != null) view.resetViewerInput();
 
+        if (!ActiveEditor.isPHP()) return;
+
+        if (view != null) {
+            view.setViewerInput();
+            view.setViewerSelection();
+        }
+
+        IEditorPart editor = ActiveEditor.get();
         editor.addPropertyListener(new IPropertyListener() {
             @Override
             public void propertyChanged(Object source, int propertyId) {
@@ -51,13 +53,8 @@ public class TestOutlinePartListener implements IPartListener2 {
                 public void selectionChanged(SelectionChangedEvent event) {
                     TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
                     if (view == null) return;
-
-                    if (!(event.getSource() instanceof ITextViewer)) return;
-                    ITextViewer textViewer = (ITextViewer) event.getSource();
-
-                    EditorParser parser = new EditorParser(textViewer.getDocument());
-                    if (!view.hasContent()) view.setViewerInput(parser);
-                    view.setViewerSelection(parser);
+                    if (!view.hasContent()) view.setViewerInput();
+                    view.setViewerSelection();
                 }
             });
         }
@@ -67,7 +64,12 @@ public class TestOutlinePartListener implements IPartListener2 {
     public void partBroughtToTop(IWorkbenchPartReference partReference) {}
 
     @Override
-    public void partClosed(IWorkbenchPartReference partReference) {}
+    public void partClosed(IWorkbenchPartReference partReference) {
+        if (ActiveEditor.get() == null) {
+            TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
+            if (view != null) view.resetViewerInput();
+        }
+    }
 
     @Override
     public void partDeactivated(IWorkbenchPartReference partReference) {}

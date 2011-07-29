@@ -15,14 +15,11 @@ package com.piece_framework.makegood.ui.handlers;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.dltk.core.ISourceModule;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.EditorParser;
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 public class RunTestFromEditorHandlerInContext extends RunHandler {
     private LastCheckedSource lastCheckedSource;
@@ -37,14 +34,9 @@ public class RunTestFromEditorHandlerInContext extends RunHandler {
     public boolean isEnabled() {
         if (!super.isEnabled()) return false;
 
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window == null) return false;
-        IWorkbenchPage page = window.getActivePage();
-        if (page == null) return false;
-        IEditorPart editor = page.getActiveEditor();
-        if (editor == null) return false;
+        if (!ActiveEditor.isPHP()) return false;
 
-        ISourceModule sourceModule = new EditorParser(editor).getSourceModule();
+        ISourceModule sourceModule = EditorParser.createActiveEditorParser().getSourceModule();
         if (sourceModule == null) {
             lastCheckedSource = null;
             return false;

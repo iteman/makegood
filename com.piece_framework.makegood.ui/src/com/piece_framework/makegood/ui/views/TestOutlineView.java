@@ -14,7 +14,6 @@ package com.piece_framework.makegood.ui.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
@@ -30,16 +29,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.EditorParser;
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 public class TestOutlineView extends ViewPart {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
@@ -57,29 +52,36 @@ public class TestOutlineView extends ViewPart {
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new TestOutlineLabelProvider());
-
-        IEditorPart editor = getActiveEditor();
-        if (editor != null) setViewerInput(new EditorParser(editor));
+        setViewerInput();
+        setViewerSelection();
     }
 
     @Override
     public void setFocus() {}
 
-    void setViewerInput(EditorParser parser) {
-        if (viewer == null) return;
-        if (viewer.getContentProvider() == null) return;
-        viewer.setInput(null);
-
-        IFile target = ((IFileEditorInput) parser.getEditor().getEditorInput()).getFile();
-        if (!PHPResource.isPHPSource(target)) return;
+    void setViewerInput() {
+        if (!ActiveEditor.isPHP()) return;
+        EditorParser parser = EditorParser.createActiveEditorParser();
         List<IType> testClasses = PHPResource.getTestClasses(parser.getSourceModule());
         if (testClasses.size() == 0) return;
 
+        if (viewer == null) return;
+        if (viewer.getContentProvider() == null) return;
         viewer.setInput(testClasses);
-        setViewerSelection(parser);
     }
 
-    void setViewerSelection(EditorParser parser) {
+    void resetViewerInput() {
+        if (viewer == null) return;
+        if (viewer.getContentProvider() == null) return;
+        viewer.setInput(null);
+    }
+
+    void setViewerSelection() {
+        if (!ActiveEditor.isPHP()) return;
+        if (!hasContent()) return;
+
+        EditorParser parser = EditorParser.createActiveEditorParser();
+
         // To empty the selection object at the selection event, the listener is temporarily deleted.
         viewer.removeSelectionChangedListener(selectionChangedListener);
         if (parser.getModelElementOnSelection() != null)
@@ -89,14 +91,6 @@ public class TestOutlineView extends ViewPart {
 
     boolean hasContent() {
         return viewer != null && viewer.getInput() != null;
-    }
-
-    private IEditorPart getActiveEditor() {
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window == null) return null;
-        IWorkbenchPage page = window.getActivePage();
-        if (page == null) return null;
-        return page.getActiveEditor();
     }
 
     private class TreeSelectionChangedListener implements ISelectionChangedListener {
@@ -109,16 +103,16 @@ public class TestOutlineView extends ViewPart {
             Assert.isTrue(selection.getFirstElement() instanceof IMember);
             IMember member = (IMember) selection.getFirstElement();
 
-            Assert.isNotNull(getActiveEditor());
-            Assert.isTrue(getActiveEditor() instanceof ITextEditor);
-            ITextEditor editor = (ITextEditor) getActiveEditor();
+            Assert.isTrue(ActiveEditor.isPHP());
 
-            EditorParser parser = new EditorParser(editor);
-            if (parser.getSourceModule() != member.getSourceModule()) return;
+            if (EditorParser.createActiveEditorParser().getSourceModule()
+                != member.getSourceModule()) return;
 
             try {
                 ISourceRange nameRange = member.getNameRange();
-                editor.selectAndReveal(nameRange.getOffset(), nameRange.getLength());
+                ((ITextEditor) ActiveEditor.get()).selectAndReveal(
+                    nameRange.getOffset(),
+                    nameRange.getLength());
             } catch (ModelException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
