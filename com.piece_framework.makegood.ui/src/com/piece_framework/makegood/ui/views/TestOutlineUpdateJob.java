@@ -21,7 +21,7 @@ public class TestOutlineUpdateJob extends UIJob {
     private static final String NAME = "MakeGood Test Outline Update";
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public static void update() {
         if (Job.getJobManager().find(NAME).length > 0) return;

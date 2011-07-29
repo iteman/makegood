@@ -68,7 +68,7 @@ public class PHPResource {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public static List<IType> getTestClasses(ISourceModule source) {
         List<IType> testClasses = new ArrayList<IType>();
@@ -99,7 +99,7 @@ public class PHPResource {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public static boolean isTestMethod(IMethod method) throws ModelException {
         if (method == null) return false;

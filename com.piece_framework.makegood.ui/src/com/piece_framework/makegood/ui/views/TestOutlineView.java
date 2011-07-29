@@ -54,7 +54,7 @@ import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
- * @since 1.4.0
+ * @since 1.x.0
  */
 public class TestOutlineView extends ViewPart {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
@@ -100,7 +100,7 @@ public class TestOutlineView extends ViewPart {
     public void setFocus() {}
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public void setViewerInput() {
         for (Job job: Job.getJobManager().find(null)) {
@@ -128,7 +128,7 @@ public class TestOutlineView extends ViewPart {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public void resetViewerInput() {
         if (viewer == null) return;
@@ -137,7 +137,7 @@ public class TestOutlineView extends ViewPart {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public void setViewerSelection() {
         if (!ActiveEditor.isPHP()) return;
@@ -153,7 +153,7 @@ public class TestOutlineView extends ViewPart {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public boolean hasContent() {
         return viewer != null && viewer.getInput() != null;

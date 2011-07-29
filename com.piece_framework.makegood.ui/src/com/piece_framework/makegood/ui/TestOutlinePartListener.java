@@ -25,7 +25,7 @@ import com.piece_framework.makegood.ui.views.TestOutlineView;
 import com.piece_framework.makegood.ui.views.ViewOpener;
 
 /**
- * @since 1.4.0
+ * @since 1.x.0
  */
 public class TestOutlinePartListener implements IPartListener2 {
     @Override

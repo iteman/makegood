@@ -138,7 +138,7 @@ public class EditorOpener {
     }
 
     /**
-     * @since 1.4.0
+     * @since 1.x.0
      */
     public static IEditorPart open(IFile file, int offset, int length) {
         IEditorPart editorPart = open(file);
