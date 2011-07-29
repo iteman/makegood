@@ -11,10 +11,17 @@
 
 package com.piece_framework.makegood.ui;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.php.internal.core.ast.nodes.Program;
+import org.eclipse.php.internal.ui.editor.IPhpScriptReconcilingListener;
+import org.eclipse.php.internal.ui.editor.PHPStructuredEditor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.progress.UIJob;
 
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.TestOutlineView;
@@ -39,15 +46,7 @@ public class TestOutlinePartListener implements IPartListener2 {
             view.setViewerSelection();
         }
 
-        IEditorPart editor = ActiveEditor.get();
-        editor.addPropertyListener(new IPropertyListener() {
-            @Override
-            public void propertyChanged(Object source, int propertyId) {
-                // Find the TestOutlineView again because the view might be closed.
-                TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
-                if (view != null) view.setViewerInput();
-            }
-        });
+        addReconcileListener();
     }
 
     @Override
@@ -75,4 +74,42 @@ public class TestOutlinePartListener implements IPartListener2 {
 
     @Override
     public void partInputChanged(IWorkbenchPartReference partReference) {}
+
+    @SuppressWarnings("restriction")
+    private void addReconcileListener() {
+        ((PHPStructuredEditor) ActiveEditor.get()).addReconcileListener(new IPhpScriptReconcilingListener() {
+            private String previousXML;
+
+            @Override
+            public void aboutToBeReconciled() {}
+
+            @Override
+            public void reconciled(Program program,
+                                   boolean forced,
+                                   IProgressMonitor progressMonitor) {
+                if (!program.toString().equals(previousXML)) {
+                    for (Job job: Job.getJobManager().find(null)) {
+                        if (job.getName().startsWith("MakeGood Test Outline Update")) {
+                            return;
+                        }
+                    }
+
+                    Job job = new UIJob("MakeGood Test Outline Update") { //$NON-NLS-1$
+                        @Override
+                        public IStatus runInUIThread(IProgressMonitor monitor) {
+                            TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
+                            if (view != null) {
+                                view.resetViewerInput();
+                                view.setViewerInput();
+                            }
+                            return Status.OK_STATUS;
+                        }
+                    };
+                    job.schedule();
+
+                    previousXML = program.toString();
+                }
+            }
+        });
+    }
 }
