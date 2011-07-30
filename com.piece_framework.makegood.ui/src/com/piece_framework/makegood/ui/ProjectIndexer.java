@@ -23,7 +23,9 @@ import org.eclipse.dltk.core.search.indexing.IndexDocument;
 import org.eclipse.dltk.core.search.indexing.core.AbstractProjectIndexer;
 
 public class ProjectIndexer extends AbstractProjectIndexer {
-    public ProjectIndexer() {}
+
+    public ProjectIndexer() {
+    }
 
     @Override
     public void doIndexing(final IndexDocument document) {
@@ -39,38 +41,30 @@ public class ProjectIndexer extends AbstractProjectIndexer {
             }
         }
 
-        if (document.isExternal()) return;
-
-        boolean isTestClass = false;
         try {
             IType[] types = document.getSourceModule().getAllTypes();
             for (IType type: types) {
-                if (isTestClass(type)) {
-                    isTestClass = true;
-                    break;
-                }
+                if (TestClass.isTestClassSupperType(type)) collectTestClass(type);
             }
         } catch (ModelException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        if (isTestClass) {
-            System.out.println(document.getPath() + " includes the test class.");
-        }
     }
 
-    private boolean isTestClass(IType type) throws ModelException {
-        if (type.getSuperClasses() == null) return false;
+    private void collectTestClass(IType type) {
+        try {
+            ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
+            for (IType subtype: hierarchy.getAllSubtypes(type)) {
+                boolean isExternal = subtype.getResource() == null;
+                if (isExternal)  continue;
 
-        for (String superClassName: type.getSuperClasses()) {
-            if (superClassName.equals("PHPUnit_Framework_TestCase")) return true;
+                MakeGoodContext.getInstance().getTestClassCache().add(subtype);
+                collectTestClass(subtype);
+            }
+        } catch (ModelException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-
-        ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
-        for (IType superType: hierarchy.getAllSupertypes(type)) {
-            if (isTestClass(superType)) return true;
-        }
-        return false;
     }
 }
