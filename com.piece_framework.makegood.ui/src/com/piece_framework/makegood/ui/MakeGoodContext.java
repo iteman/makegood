@@ -36,6 +36,7 @@ public class MakeGoodContext implements IWorkbenchListener {
     private MakeGoodStatusMonitor statusMonitor = new MakeGoodStatusMonitor();
     private MakeGoodStatus status;
     private List<MakeGoodStatusChangeListener> statusChangeListeners = new ArrayList<MakeGoodStatusChangeListener>();
+    private TestClassCache cache = new TestClassCache();
 
     private MakeGoodContext() {
     }
@@ -109,5 +110,9 @@ public class MakeGoodContext implements IWorkbenchListener {
 
     public void removeStatusChangeListener(MakeGoodStatusChangeListener listener) {
         statusChangeListeners.remove(listener);
+    }
+
+    public TestClassCache getTestClassCache() {
+        return cache;
     }
 }
