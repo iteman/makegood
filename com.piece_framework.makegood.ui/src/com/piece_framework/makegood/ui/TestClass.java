@@ -30,8 +30,8 @@ public class TestClass {
         this.type = type;
     }
 
-    public IPath getFullPath() {
-        return type.getResource().getFullPath();
+    public IPath getPath() {
+        return type.getPath();
     }
 
     public IType getType() {
