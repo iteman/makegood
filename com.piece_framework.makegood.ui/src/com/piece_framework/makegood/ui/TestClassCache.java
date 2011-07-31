@@ -31,6 +31,11 @@ public class TestClassCache {
         testClasses.put(type.getPath(), testClass);
     }
 
+    public void remove(IType type) {
+        if (type.getPath() == null) return;
+        testClasses.remove(type.getPath());
+    }
+
     public TestClass get(IType type) {
         return testClasses.get(type.getPath());
     }
