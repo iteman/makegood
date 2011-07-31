@@ -112,6 +112,9 @@ public class MakeGoodContext implements IWorkbenchListener {
         statusChangeListeners.remove(listener);
     }
 
+    /**
+     * @since 1.x.0
+     */
     public TestClassCache getTestClassCache() {
         return cache;
     }
