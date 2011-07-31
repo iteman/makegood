@@ -28,11 +28,11 @@ public class TestClassCache {
 
     public void add(IType type) {
         TestClass testClass = new TestClass(type);
-        testClasses.put(testClass.getFullPath(), testClass);
+        testClasses.put(type.getPath(), testClass);
     }
 
     public TestClass get(IType type) {
-        return testClasses.get(type.getResource().getFullPath());
+        return testClasses.get(type.getPath());
     }
 
     public TestClass[] getAll() {
