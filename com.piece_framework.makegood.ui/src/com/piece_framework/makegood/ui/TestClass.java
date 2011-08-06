@@ -17,7 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.dltk.core.ITypeHierarchy;
+import org.eclipse.dltk.core.ModelException;
 
 import com.piece_framework.makegood.core.MakeGoodProperty;
 import com.piece_framework.makegood.core.TestingFramework;
@@ -53,6 +56,32 @@ public class TestClass {
         for (String testClassSuperType: testClassSuperTypes) {
             if (type.getElementName().equals(testClassSuperType)) return true;
         }
+        return false;
+    }
+
+    public static boolean isTestClass(IType type) {
+        if (type == null || type.getResource() == null) return false;
+        String[] superClasses = null;
+        try {
+            superClasses = type.getSuperClasses();
+        } catch (ModelException e) {
+            return false;
+        }
+        if (superClasses == null || superClasses.length == 0) return false;
+
+        String[] testClassSuperTypes = new MakeGoodProperty(type.getResource()).getTestingFramework().getTestClassSuperTypes();
+        for (String testClassSuperType: testClassSuperTypes) {
+            for (String superClass: superClasses) {
+                if (testClassSuperType.equals(superClass)) return true;
+            }
+        }
+
+        try {
+            ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
+            for (IType superType: hierarchy.getAllSuperclasses(type)) {
+                if (isTestClass(superType)) return true;
+            }
+        } catch (ModelException e) {}
         return false;
     }
 }
