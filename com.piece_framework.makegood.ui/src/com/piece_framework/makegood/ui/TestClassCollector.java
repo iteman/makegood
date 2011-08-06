@@ -32,7 +32,7 @@ public class TestClassCollector {
 
     public void remove(IType type) {
         if (type.getPath() == null) return;
-        testClasses.remove(type.getPath());
+        testClasses.remove(getKey(type));
     }
 
     public TestClass get(IType type) {
