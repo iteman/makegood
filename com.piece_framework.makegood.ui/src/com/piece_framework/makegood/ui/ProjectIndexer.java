@@ -13,6 +13,7 @@
 package com.piece_framework.makegood.ui;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -41,9 +42,16 @@ public class ProjectIndexer extends AbstractProjectIndexer {
             }
         }
 
+        IType[] types;
         try {
-            IType[] types = document.getSourceModule().getAllTypes();
-            for (IType type: types) {
+            types = document.getSourceModule().getAllTypes();
+        } catch (ModelException e) {
+            Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+            return;
+        }
+
+        for (IType type: types) {
+            try {
                 if (TestClass.isTestClassSupperType(type)) {
                     collectTestClass(type);
                 }
@@ -53,26 +61,20 @@ public class ProjectIndexer extends AbstractProjectIndexer {
                 } else {
                     MakeGoodContext.getInstance().getTestClassCollector().remove(type);
                 }
+            } catch (ModelException e) {
+                Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
-        } catch (ModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
-    private void collectTestClass(IType type) {
-        try {
-            ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
-            for (IType subtype: hierarchy.getAllSubtypes(type)) {
-                boolean isExternal = subtype.getResource() == null;
-                if (isExternal)  continue;
+    private void collectTestClass(IType type) throws ModelException {
+        ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
+        for (IType subtype: hierarchy.getAllSubtypes(type)) {
+            boolean isExternal = subtype.getResource() == null;
+            if (isExternal)  continue;
 
-                MakeGoodContext.getInstance().getTestClassCollector().add(subtype);
-                collectTestClass(subtype);
-            }
-        } catch (ModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            MakeGoodContext.getInstance().getTestClassCollector().add(subtype);
+            collectTestClass(subtype);
         }
     }
 }
