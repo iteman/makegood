@@ -44,7 +44,15 @@ public class ProjectIndexer extends AbstractProjectIndexer {
         try {
             IType[] types = document.getSourceModule().getAllTypes();
             for (IType type: types) {
-                if (TestClass.isTestClassSupperType(type)) collectTestClass(type);
+                if (TestClass.isTestClassSupperType(type)) {
+                    collectTestClass(type);
+                }
+
+                if (TestClass.isTestClass(type)) {
+                    MakeGoodContext.getInstance().getTestClassCache().add(type);
+                } else {
+                    MakeGoodContext.getInstance().getTestClassCache().remove(type);
+                }
             }
         } catch (ModelException e) {
             // TODO Auto-generated catch block
