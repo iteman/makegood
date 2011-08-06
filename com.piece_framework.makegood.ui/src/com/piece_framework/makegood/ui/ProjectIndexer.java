@@ -25,9 +25,6 @@ import org.eclipse.dltk.core.search.indexing.core.AbstractProjectIndexer;
 
 public class ProjectIndexer extends AbstractProjectIndexer {
 
-    public ProjectIndexer() {
-    }
-
     @Override
     public void doIndexing(final IndexDocument document) {
         for (Job job: Job.getJobManager().find(null)) {
