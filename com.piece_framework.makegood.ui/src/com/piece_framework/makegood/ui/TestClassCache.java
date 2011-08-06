@@ -16,19 +16,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.dltk.core.IType;
 
 public class TestClassCache {
-    private Map<IPath, TestClass> testClasses;
+    private Map<String, TestClass> testClasses;
 
     public TestClassCache() {
-        testClasses = Collections.synchronizedMap(new HashMap<IPath, TestClass>());
+        testClasses = Collections.synchronizedMap(new HashMap<String, TestClass>());
     }
 
     public void add(IType type) {
         TestClass testClass = new TestClass(type);
-        testClasses.put(type.getPath(), testClass);
+        testClasses.put(getKey(type), testClass);
     }
 
     public void remove(IType type) {
@@ -37,10 +36,14 @@ public class TestClassCache {
     }
 
     public TestClass get(IType type) {
-        return testClasses.get(type.getPath());
+        return testClasses.get(getKey(type));
     }
 
     public TestClass[] getAll() {
         return testClasses.values().toArray(new TestClass[0]);
+    }
+
+    private String getKey(IType type) {
+        return type.getPath() + "#" + type.getElementName();
     }
 }
