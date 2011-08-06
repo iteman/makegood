@@ -49,9 +49,9 @@ public class ProjectIndexer extends AbstractProjectIndexer {
                 }
 
                 if (TestClass.isTestClass(type)) {
-                    MakeGoodContext.getInstance().getTestClassCache().add(type);
+                    MakeGoodContext.getInstance().getTestClassCollector().add(type);
                 } else {
-                    MakeGoodContext.getInstance().getTestClassCache().remove(type);
+                    MakeGoodContext.getInstance().getTestClassCollector().remove(type);
                 }
             }
         } catch (ModelException e) {
@@ -67,7 +67,7 @@ public class ProjectIndexer extends AbstractProjectIndexer {
                 boolean isExternal = subtype.getResource() == null;
                 if (isExternal)  continue;
 
-                MakeGoodContext.getInstance().getTestClassCache().add(subtype);
+                MakeGoodContext.getInstance().getTestClassCollector().add(subtype);
                 collectTestClass(subtype);
             }
         } catch (ModelException e) {

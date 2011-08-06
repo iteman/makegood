@@ -36,7 +36,7 @@ public class MakeGoodContext implements IWorkbenchListener {
     private MakeGoodStatusMonitor statusMonitor = new MakeGoodStatusMonitor();
     private MakeGoodStatus status;
     private List<MakeGoodStatusChangeListener> statusChangeListeners = new ArrayList<MakeGoodStatusChangeListener>();
-    private TestClassCache cache = new TestClassCache();
+    private TestClassCollector collector = new TestClassCollector();
 
     private MakeGoodContext() {
     }
@@ -115,7 +115,7 @@ public class MakeGoodContext implements IWorkbenchListener {
     /**
      * @since 1.x.0
      */
-    public TestClassCache getTestClassCache() {
-        return cache;
+    public TestClassCollector getTestClassCollector() {
+        return collector;
     }
 }

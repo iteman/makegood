@@ -18,10 +18,10 @@ import java.util.Map;
 
 import org.eclipse.dltk.core.IType;
 
-public class TestClassCache {
+public class TestClassCollector {
     private Map<String, TestClass> testClasses;
 
-    public TestClassCache() {
+    public TestClassCollector() {
         testClasses = Collections.synchronizedMap(new HashMap<String, TestClass>());
     }
 
