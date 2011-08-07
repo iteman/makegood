@@ -27,6 +27,7 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.ResultViewController;
+import com.piece_framework.makegood.ui.views.TestOutlineViewController;
 
 public class MakeGoodPreparer implements IStartup {
     @Override
@@ -61,5 +62,6 @@ public class MakeGoodPreparer implements IStartup {
         DebugPlugin.getDefault().addDebugEventListener(new ResultViewController());
         PlatformUI.getWorkbench().addWorkbenchListener(MakeGoodContext.getInstance());
         ResourcesPlugin.getWorkspace().addResourceChangeListener(new Autotest());
+        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(new TestOutlineViewController());
     }
 }
