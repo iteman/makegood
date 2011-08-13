@@ -18,9 +18,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
@@ -51,6 +48,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
+import com.piece_framework.makegood.ui.MakeGoodContext;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
@@ -103,26 +101,17 @@ public class TestOutlineView extends ViewPart {
      * @since 1.x.0
      */
     public void setViewerInput() {
-        for (Job job: Job.getJobManager().find(null)) {
-            if (job.getName().startsWith("DLTK indexing")) {
-                job.addJobChangeListener(new JobChangeAdapter() {
-                    @Override
-                    public void done(IJobChangeEvent event) {
-                        TestOutlineUpdateJob.update();
-                    }
-                });
-                return;
-            }
-        }
-
+        if (viewer == null) return;
+        if (viewer.getContentProvider() == null) return;
         if (!ActiveEditor.isPHP()) return;
 
         EditorParser parser = EditorParser.createActiveEditorParser();
-        List<IType> testClasses = PHPResource.getTestClasses(parser.getSourceModule());
-        if (testClasses.size() == 0) return;
-
-        if (viewer == null) return;
-        if (viewer.getContentProvider() == null) return;
+        List<IType> testClasses = new ArrayList<IType>();
+        for (IType type: parser.getTypes()) {
+            if (MakeGoodContext.getInstance().getTestClassCollector().get(type) != null) {
+                testClasses.add(type);
+            }
+        }
         viewer.setInput(testClasses);
         viewer.expandAll();
     }
