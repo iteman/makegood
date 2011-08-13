@@ -34,6 +34,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -49,6 +50,7 @@ import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.MakeGoodContext;
+import com.piece_framework.makegood.ui.TestClass;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
@@ -69,7 +71,55 @@ public class TestOutlineView extends ViewPart {
 
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
-        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
+        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider() {
+            @Override
+            protected int evaluateImageFlags(Object element) {
+                if (element instanceof TestClass) {
+                    return super.evaluateImageFlags(((TestClass) element).getType());
+                }
+                return super.evaluateImageFlags(element);
+            }
+
+            @Override
+            protected long evaluateTextFlags(Object element) {
+                if (element instanceof TestClass) {
+                    return super.evaluateTextFlags(((TestClass) element).getType());
+                }
+                return super.evaluateTextFlags(element);
+            }
+
+            @Override
+            protected Image decorateImage(Image image, Object element) {
+                if (element instanceof TestClass) {
+                    return super.decorateImage(image, ((TestClass) element).getType());
+                }
+                return super.decorateImage(image, element);
+            }
+
+            @Override
+            protected String decorateText(String text, Object element) {
+                if (element instanceof TestClass) {
+                    return super.decorateText(text, ((TestClass) element).getType());
+                }
+                return super.decorateText(text, element);
+            }
+
+            @Override
+            public Image getImage(Object element) {
+                if (element instanceof TestClass) {
+                    return super.getImage(((TestClass) element).getType());
+                }
+                return super.getImage(element);
+            }
+
+            @Override
+            public String getText(Object element) {
+                if (element instanceof TestClass) {
+                    return super.getText(((TestClass) element).getType());
+                }
+                return super.getText(element);
+            }
+        }));
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
@@ -106,11 +156,10 @@ public class TestOutlineView extends ViewPart {
         if (!ActiveEditor.isPHP()) return;
 
         EditorParser parser = EditorParser.createActiveEditorParser();
-        List<IType> testClasses = new ArrayList<IType>();
+        List<TestClass> testClasses = new ArrayList<TestClass>();
         for (IType type: parser.getTypes()) {
-            if (MakeGoodContext.getInstance().getTestClassCollector().get(type) != null) {
-                testClasses.add(type);
-            }
+            TestClass testClass = MakeGoodContext.getInstance().getTestClassCollector().get(type);
+            if (testClass != null) testClasses.add(testClass);
         }
         viewer.setInput(testClasses);
         viewer.expandAll();
@@ -220,10 +269,11 @@ public class TestOutlineView extends ViewPart {
             List children = null;
             if (parentElement instanceof List) {
                 children = (List) parentElement;
-            } else if (parentElement instanceof IType) {
+            } else if (parentElement instanceof TestClass) {
+                IType type = ((TestClass) parentElement).getType();
                 try {
                     children = new ArrayList<IMethod>();
-                    for (IMethod method : ((IType) parentElement).getMethods()) {
+                    for (IMethod method : type.getMethods()) {
                         if (PHPResource.isTestMethod(method)) children.add(method);
                     }
                 } catch (ModelException e) {
@@ -238,17 +288,18 @@ public class TestOutlineView extends ViewPart {
 
         @Override
         public Object getParent(Object element) {
-            return (element != null && element instanceof IMember) ?
-                   ((IMember) element).getParent() :
-                   null;
+            if (element == null) return null;
+            if (element instanceof TestClass) return ((TestClass) element).getType().getParent();
+            if (element instanceof IMember) return ((IMember) element).getParent();
+            return null;
         }
 
         @Override
         public boolean hasChildren(Object element) {
-            if (!(element instanceof IType)) return false;
-            IMethod[] methods = null;;
+            if (!(element instanceof TestClass)) return false;
+            IMethod[] methods = null;
             try {
-                methods = ((IType) element).getMethods();
+                methods = ((TestClass) element).getType().getMethods();
             } catch (ModelException e) {
                 Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
