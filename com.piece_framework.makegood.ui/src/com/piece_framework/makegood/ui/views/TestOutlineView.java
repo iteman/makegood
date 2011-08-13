@@ -268,13 +268,8 @@ public class TestOutlineView extends ViewPart {
             List children = null;
             if (parentElement instanceof List) {
                 children = (List) parentElement;
-            } else if (parentElement instanceof TestClass || parentElement instanceof IType) {
-                IType type;
-                if (parentElement instanceof TestClass) {
-                    type = ((TestClass) parentElement).getType();
-                } else {
-                    type = (IType) parentElement;
-                }
+            } else if (parentElement instanceof TestClass) {
+                IType type = ((TestClass) parentElement).getType();
                 try {
                     children = new ArrayList<IMethod>();
                     for (IMethod method : type.getMethods()) {
@@ -282,8 +277,9 @@ public class TestOutlineView extends ViewPart {
                     }
 
                     ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
-                    for (IType subtype: hierarchy.getSupertypes(type)) {
-                        children.add(subtype);
+                    for (IType superType: hierarchy.getSupertypes(type)) {
+                        TestClass testClass = MakeGoodContext.getInstance().getTestClassCollector().get(superType);
+                        if (testClass != null) children.add(testClass);
                     }
                 } catch (ModelException e) {
                     Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
@@ -305,22 +301,14 @@ public class TestOutlineView extends ViewPart {
 
         @Override
         public boolean hasChildren(Object element) {
-            IType type;
-            if (element instanceof TestClass) {
-                type = ((TestClass) element).getType();
-            } else if (element instanceof IType) {
-                type = (IType) element;
-            } else {
-                return false;
-            }
+            if (!(element instanceof TestClass)) return false;
 
-            IMethod[] methods = null;
             try {
-                methods = type.getMethods();
+                return ((TestClass) element).getType().getMethods().length > 0;
             } catch (ModelException e) {
                 Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
-            return methods.length > 0;
+            return false;
         }
 
         @Override
