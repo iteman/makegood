@@ -36,7 +36,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -73,55 +72,7 @@ public class TestOutlineView extends ViewPart {
 
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
-        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider() {
-            @Override
-            protected int evaluateImageFlags(Object element) {
-                if (element instanceof TestClass) {
-                    return super.evaluateImageFlags(((TestClass) element).getType());
-                }
-                return super.evaluateImageFlags(element);
-            }
-
-            @Override
-            protected long evaluateTextFlags(Object element) {
-                if (element instanceof TestClass) {
-                    return super.evaluateTextFlags(((TestClass) element).getType());
-                }
-                return super.evaluateTextFlags(element);
-            }
-
-            @Override
-            protected Image decorateImage(Image image, Object element) {
-                if (element instanceof TestClass) {
-                    return super.decorateImage(image, ((TestClass) element).getType());
-                }
-                return super.decorateImage(image, element);
-            }
-
-            @Override
-            protected String decorateText(String text, Object element) {
-                if (element instanceof TestClass) {
-                    return super.decorateText(text, ((TestClass) element).getType());
-                }
-                return super.decorateText(text, element);
-            }
-
-            @Override
-            public Image getImage(Object element) {
-                if (element instanceof TestClass) {
-                    return super.getImage(((TestClass) element).getType());
-                }
-                return super.getImage(element);
-            }
-
-            @Override
-            public String getText(Object element) {
-                if (element instanceof TestClass) {
-                    return super.getText(((TestClass) element).getType());
-                }
-                return super.getText(element);
-            }
-        }));
+        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
