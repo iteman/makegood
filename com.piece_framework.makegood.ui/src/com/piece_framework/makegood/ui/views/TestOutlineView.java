@@ -17,11 +17,13 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.dltk.core.ITypeHierarchy;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
@@ -269,12 +271,22 @@ public class TestOutlineView extends ViewPart {
             List children = null;
             if (parentElement instanceof List) {
                 children = (List) parentElement;
-            } else if (parentElement instanceof TestClass) {
-                IType type = ((TestClass) parentElement).getType();
+            } else if (parentElement instanceof TestClass || parentElement instanceof IType) {
+                IType type;
+                if (parentElement instanceof TestClass) {
+                    type = ((TestClass) parentElement).getType();
+                } else {
+                    type = (IType) parentElement;
+                }
                 try {
                     children = new ArrayList<IMethod>();
                     for (IMethod method : type.getMethods()) {
                         if (PHPResource.isTestMethod(method)) children.add(method);
+                    }
+
+                    ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
+                    for (IType subtype: hierarchy.getAllSubtypes(type)) {
+                        children.add(subtype);
                     }
                 } catch (ModelException e) {
                     Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
