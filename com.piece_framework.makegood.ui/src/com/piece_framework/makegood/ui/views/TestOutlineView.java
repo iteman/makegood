@@ -158,11 +158,8 @@ public class TestOutlineView extends ViewPart {
         if (!ActiveEditor.isPHP()) return;
 
         EditorParser parser = EditorParser.createActiveEditorParser();
-        List<TestClass> testClasses = new ArrayList<TestClass>();
-        for (IType type: parser.getTypes()) {
-            TestClass testClass = MakeGoodContext.getInstance().getTestClassCollector().get(type);
-            if (testClass != null) testClasses.add(testClass);
-        }
+        List<TestClass> testClasses =
+            MakeGoodContext.getInstance().getTestClassCollector().getAtSourceModule(parser.getSourceModule());
         viewer.setInput(testClasses);
         viewer.expandAll();
     }
