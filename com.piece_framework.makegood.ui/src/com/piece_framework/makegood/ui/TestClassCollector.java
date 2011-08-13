@@ -18,7 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.dltk.core.ModelException;
 
 public class TestClassCollector {
     private Map<String, TestClass> testClasses;
@@ -46,8 +48,17 @@ public class TestClassCollector {
         return testClasses.get(getKey(type));
     }
 
-    public TestClass[] getAll() {
-        return testClasses.values().toArray(new TestClass[0]);
+    public List<TestClass> getAtSourceModule(ISourceModule sourceModule) {
+        List<TestClass> result = new ArrayList<TestClass>();
+        if (sourceModule == null) return result;
+
+        try {
+            for (IType type: sourceModule.getTypes()) {
+                TestClass testClass = get(type);
+                if (testClass != null) result.add(testClass);
+            }
+        } catch (ModelException e) {}
+        return result;
     }
 
     public void addCollectorChangeListener(TestClassCollectorChangeListener listener) {
