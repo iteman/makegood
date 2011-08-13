@@ -282,7 +282,7 @@ public class TestOutlineView extends ViewPart {
                     }
 
                     ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
-                    for (IType subtype: hierarchy.getAllSubtypes(type)) {
+                    for (IType subtype: hierarchy.getSupertypes(type)) {
                         children.add(subtype);
                     }
                 } catch (ModelException e) {
