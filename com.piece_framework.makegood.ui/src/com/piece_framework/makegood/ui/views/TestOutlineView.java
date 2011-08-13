@@ -305,10 +305,18 @@ public class TestOutlineView extends ViewPart {
 
         @Override
         public boolean hasChildren(Object element) {
-            if (!(element instanceof TestClass)) return false;
+            IType type;
+            if (element instanceof TestClass) {
+                type = ((TestClass) element).getType();
+            } else if (element instanceof IType) {
+                type = (IType) element;
+            } else {
+                return false;
+            }
+
             IMethod[] methods = null;
             try {
-                methods = ((TestClass) element).getType().getMethods();
+                methods = type.getMethods();
             } catch (ModelException e) {
                 Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
