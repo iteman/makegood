@@ -222,7 +222,7 @@ public class TestOutlineView extends ViewPart {
             } else if (parentElement instanceof TestClass) {
                 IType type = ((TestClass) parentElement).getType();
                 try {
-                    children = new ArrayList<IMethod>();
+                    children = new ArrayList<IMember>();
                     for (IMethod method : type.getMethods()) {
                         if (PHPResource.isTestMethod(method)) children.add(method);
                     }
