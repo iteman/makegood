@@ -70,6 +70,7 @@ public class TestOutlineView extends ViewPart {
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
+        viewer.addSelectionChangedListener(selectionChangedListener);
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
@@ -80,7 +81,6 @@ public class TestOutlineView extends ViewPart {
         getSite().setSelectionProvider(viewer);
 
         setViewerInput();
-        setViewerSelection();
 
         viewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
@@ -199,6 +199,10 @@ public class TestOutlineView extends ViewPart {
             if (event.getSelection().isEmpty()) return;
             Assert.isTrue(event.getSelection() instanceof StructuredSelection);
             StructuredSelection selection = (StructuredSelection) event.getSelection();
+            Assert.isTrue(selection.getFirstElement() instanceof IMember);
+            IMember member = (IMember) selection.getFirstElement();
+
+            if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
 
             showEditor(selection, false);
         }
