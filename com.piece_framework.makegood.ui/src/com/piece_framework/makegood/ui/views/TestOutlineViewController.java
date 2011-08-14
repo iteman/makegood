@@ -85,7 +85,6 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
     private void updateTestOutlineView() {
         TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
         if (view != null) {
-            view.resetViewerInput();
             view.setViewerInput();
         }
     }

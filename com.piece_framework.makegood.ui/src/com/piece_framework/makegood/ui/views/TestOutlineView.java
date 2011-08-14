@@ -88,6 +88,9 @@ public class TestOutlineView extends ViewPart {
     public void setViewerInput() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
+
+        viewer.setInput(null);
+
         if (!ActiveEditor.isPHP()) return;
 
         EditorParser parser = EditorParser.createActiveEditorParser();
@@ -95,12 +98,6 @@ public class TestOutlineView extends ViewPart {
             MakeGoodContext.getInstance().getTestClassCollector().getAtSourceModule(parser.getSourceModule());
         viewer.setInput(testClasses);
         viewer.expandAll();
-    }
-
-    public void resetViewerInput() {
-        if (viewer == null) return;
-        if (viewer.getContentProvider() == null) return;
-        viewer.setInput(null);
     }
 
     private void showEditor(StructuredSelection selection, Boolean openWhenClosed) {
