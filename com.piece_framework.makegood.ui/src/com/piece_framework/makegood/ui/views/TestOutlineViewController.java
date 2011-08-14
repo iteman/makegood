@@ -35,7 +35,7 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
         UIJob job = new UIJob(NAME) {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
-                updateTestOutlineView();
+                updateTestOutline();
                 return Status.OK_STATUS;
             }
 
@@ -51,7 +51,7 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
 
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
-        updateTestOutlineView();
+        updateTestOutline();
     }
 
     @Override
@@ -82,10 +82,10 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
     public void partInputChanged(IWorkbenchPartReference partRef) {
     }
 
-    private void updateTestOutlineView() {
+    private void updateTestOutline() {
         TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
         if (view != null) {
-            view.setViewerInput();
+            view.updateTestOutline();
         }
     }
 }

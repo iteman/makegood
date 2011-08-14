@@ -79,13 +79,13 @@ public class TestOutlineView extends ViewPart {
         getSite().registerContextMenu(contextMenuManager, viewer);
         getSite().setSelectionProvider(viewer);
 
-        setViewerInput();
+        updateTestOutline();
     }
 
     @Override
     public void setFocus() {}
 
-    public void setViewerInput() {
+    public void updateTestOutline() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
 
