@@ -30,7 +30,23 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
 
     @Override
     public void collectorChanged(IType type) {
-        updateTestOutlineView();
+        if (Job.getJobManager().find(NAME).length > 0) return;
+
+        UIJob job = new UIJob(NAME) {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                updateTestOutlineView();
+                return Status.OK_STATUS;
+            }
+
+            @Override
+            public boolean belongsTo(Object family) {
+                if (!(family instanceof String)) return super.belongsTo(family);
+
+                return getName().equals((String) family);
+            }
+        };
+        job.schedule();
     }
 
     @Override
@@ -67,26 +83,10 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
     }
 
     private void updateTestOutlineView() {
-        if (Job.getJobManager().find(NAME).length > 0) return;
-
-        UIJob job = new UIJob(NAME) {
-            @Override
-            public IStatus runInUIThread(IProgressMonitor monitor) {
-                TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
-                if (view != null) {
-                    view.resetViewerInput();
-                    view.setViewerInput();
-                }
-                return Status.OK_STATUS;
-            }
-
-            @Override
-            public boolean belongsTo(Object family) {
-                if (!(family instanceof String)) return super.belongsTo(family);
-
-                return getName().equals((String) family);
-            }
-        };
-        job.schedule();
+        TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
+        if (view != null) {
+            view.resetViewerInput();
+            view.setViewerInput();
+        }
     }
 }
