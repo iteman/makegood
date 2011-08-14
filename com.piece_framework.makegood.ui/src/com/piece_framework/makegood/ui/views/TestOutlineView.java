@@ -71,6 +71,7 @@ public class TestOutlineView extends ViewPart {
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
         viewer.addSelectionChangedListener(selectionChangedListener);
+        viewer.addDoubleClickListener(new TreeDoubleClickListener());
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
@@ -81,17 +82,6 @@ public class TestOutlineView extends ViewPart {
         getSite().setSelectionProvider(viewer);
 
         setViewerInput();
-
-        viewer.addDoubleClickListener(new IDoubleClickListener() {
-            @Override
-            public void doubleClick(DoubleClickEvent event) {
-                if (event.getSelection().isEmpty()) return;
-                Assert.isTrue(event.getSelection() instanceof StructuredSelection);
-                StructuredSelection selection = (StructuredSelection) event.getSelection();
-
-                showEditor(selection, true);
-            }
-        });
     }
 
     @Override
@@ -176,6 +166,17 @@ public class TestOutlineView extends ViewPart {
             if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
 
             showEditor(selection, false);
+        }
+    }
+
+    private class TreeDoubleClickListener implements IDoubleClickListener {
+        @Override
+        public void doubleClick(DoubleClickEvent event) {
+            if (event.getSelection().isEmpty()) return;
+            Assert.isTrue(event.getSelection() instanceof StructuredSelection);
+            StructuredSelection selection = (StructuredSelection) event.getSelection();
+
+            showEditor(selection, true);
         }
     }
 
