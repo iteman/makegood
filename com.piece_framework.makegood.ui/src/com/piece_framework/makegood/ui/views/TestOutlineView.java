@@ -58,8 +58,6 @@ public class TestOutlineView extends ViewPart {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
 
     private TreeViewer viewer;
-    private TreeSelectionChangedListener selectionChangedListener =
-        new TreeSelectionChangedListener();
 
     public TestOutlineView() {}
 
@@ -70,7 +68,7 @@ public class TestOutlineView extends ViewPart {
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
-        viewer.addSelectionChangedListener(selectionChangedListener);
+        viewer.addSelectionChangedListener(new TreeSelectionChangedListener());
         viewer.addDoubleClickListener(new TreeDoubleClickListener());
 
         MenuManager contextMenuManager = new MenuManager();
