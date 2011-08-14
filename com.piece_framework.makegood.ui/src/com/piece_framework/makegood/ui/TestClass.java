@@ -38,6 +38,7 @@ import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.WorkingCopyOwner;
 
 import com.piece_framework.makegood.core.MakeGoodProperty;
+import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.core.TestingFramework;
 
 public class TestClass implements IType {
@@ -179,7 +180,19 @@ public class TestClass implements IType {
 
     @Override
     public IModelElement[] getChildren() throws ModelException {
-        return type.getChildren();
+        List<IModelElement> children = new ArrayList<IModelElement>();
+
+        children.addAll(Arrays.asList(getMethods()));
+
+        ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
+        for (IType supertype: hierarchy.getSupertypes(type)) {
+            if (!TestClass.isTestClassSupperType(supertype)) {
+                TestClass testClass = new TestClass(supertype);
+                children.add(testClass);
+            }
+        }
+
+        return children.toArray(new IModelElement[0]);
     }
 
     @Override
@@ -219,7 +232,11 @@ public class TestClass implements IType {
 
     @Override
     public IMethod[] getMethods() throws ModelException {
-        return type.getMethods();
+        List<IMethod> methods = new ArrayList<IMethod>();
+        for (IMethod method: type.getMethods()) {
+            if (PHPResource.isTestMethod(method)) methods.add(method);
+        }
+        return methods.toArray(new IMethod[0]);
     }
 
     @Override

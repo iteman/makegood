@@ -12,18 +12,16 @@
 package com.piece_framework.makegood.ui.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
-import org.eclipse.dltk.core.IType;
-import org.eclipse.dltk.core.ITypeHierarchy;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
@@ -47,7 +45,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.MakeGoodContext;
@@ -214,24 +211,14 @@ public class TestOutlineView extends ViewPart {
         }
 
         @Override
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings("rawtypes")
         public Object[] getChildren(Object parentElement) {
             List children = null;
             if (parentElement instanceof List) {
                 children = (List) parentElement;
             } else if (parentElement instanceof TestClass) {
-                IType type = ((TestClass) parentElement).getType();
                 try {
-                    children = new ArrayList<IMember>();
-                    for (IMethod method : type.getMethods()) {
-                        if (PHPResource.isTestMethod(method)) children.add(method);
-                    }
-
-                    ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
-                    for (IType superType: hierarchy.getSupertypes(type)) {
-                        TestClass testClass = MakeGoodContext.getInstance().getTestClassCollector().get(superType);
-                        if (testClass != null) children.add(testClass);
-                    }
+                    children = Arrays.asList(((TestClass) parentElement).getChildren());
                 } catch (ModelException e) {
                     Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
                 }
@@ -244,18 +231,14 @@ public class TestOutlineView extends ViewPart {
 
         @Override
         public Object getParent(Object element) {
-            if (element == null) return null;
-            if (element instanceof TestClass) return ((TestClass) element).getType().getParent();
             if (element instanceof IMember) return ((IMember) element).getParent();
             return null;
         }
 
         @Override
         public boolean hasChildren(Object element) {
-            if (!(element instanceof TestClass)) return false;
-
             try {
-                return ((TestClass) element).getType().getMethods().length > 0;
+                if (element instanceof IMember) return ((IMember) element).hasChildren();
             } catch (ModelException e) {
                 Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
