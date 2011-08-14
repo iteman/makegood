@@ -97,9 +97,6 @@ public class TestOutlineView extends ViewPart {
     @Override
     public void setFocus() {}
 
-    /**
-     * @since 1.x.0
-     */
     public void setViewerInput() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
@@ -112,36 +109,10 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
-    /**
-     * @since 1.x.0
-     */
     public void resetViewerInput() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
         viewer.setInput(null);
-    }
-
-    /**
-     * @since 1.x.0
-     */
-    public void setViewerSelection() {
-        if (!ActiveEditor.isPHP()) return;
-        if (!hasContent()) return;
-
-        EditorParser parser = EditorParser.createActiveEditorParser();
-
-        // To empty the selection object at the selection event, the listener is temporarily deleted.
-        viewer.removeSelectionChangedListener(selectionChangedListener);
-        if (parser.getModelElementOnSelection() != null)
-            viewer.setSelection(new StructuredSelection(parser.getModelElementOnSelection()));
-        viewer.addSelectionChangedListener(selectionChangedListener);
-    }
-
-    /**
-     * @since 1.x.0
-     */
-    public boolean hasContent() {
-        return viewer != null && viewer.getInput() != null;
     }
 
     private void showEditor(StructuredSelection selection, Boolean openWhenClosed) {
