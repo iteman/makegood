@@ -97,51 +97,48 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
-    private void showEditor(IMember member, Boolean showWhenDeactivate) {
-        if (member == null) return;
-        if (member.getSourceModule() == null) return;
-
-        ISourceRange nameRange = null;
-        try {
-            nameRange = member.getNameRange();
-        } catch (ModelException e) {
-            Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
-        }
-        if (nameRange == null) return;
-
-        boolean targetIsActivate =
-            EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule());
-        if (targetIsActivate) {
-            ((ITextEditor) ActiveEditor.get()).selectAndReveal(
-                nameRange.getOffset(),
-                nameRange.getLength());
-        } else {
-            if (showWhenDeactivate) {
-                EditorOpener.open(
-                    (IFile) member.getResource(),
-                    nameRange.getOffset(),
-                    nameRange.getLength());
-            }
-        }
-    }
-
     private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
         @Override
         public void doubleClick(DoubleClickEvent event) {
-            showEditor(getMember(event.getSelection()), true);
+            showEditor(event.getSelection(), true);
         }
 
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
-            showEditor(getMember(event.getSelection()), false);
+            showEditor(event.getSelection(), false);
         }
 
-        private IMember getMember(ISelection selection) {
-            if (selection.isEmpty()) return null;
+        private void showEditor(ISelection selection, Boolean showWhenDeactivate) {
+            if (selection.isEmpty()) return;
             Assert.isTrue(selection instanceof StructuredSelection);
             StructuredSelection structuredSelection = (StructuredSelection) selection;
             Assert.isTrue(structuredSelection.getFirstElement() instanceof IMember);
-            return (IMember) structuredSelection.getFirstElement();
+            IMember member = (IMember) structuredSelection.getFirstElement();
+            if (member == null) return;
+            if (member.getSourceModule() == null) return;
+
+            ISourceRange nameRange = null;
+            try {
+                nameRange = member.getNameRange();
+            } catch (ModelException e) {
+                Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+            }
+            if (nameRange == null) return;
+
+            boolean targetIsActivate =
+                EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule());
+            if (targetIsActivate) {
+                ((ITextEditor) ActiveEditor.get()).selectAndReveal(
+                        nameRange.getOffset(),
+                        nameRange.getLength());
+            } else {
+                if (showWhenDeactivate) {
+                    EditorOpener.open(
+                            (IFile) member.getResource(),
+                            nameRange.getOffset(),
+                            nameRange.getLength());
+                }
+            }
         }
     }
 
