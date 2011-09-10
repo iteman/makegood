@@ -111,17 +111,17 @@ public class TestOutlineView extends ViewPart {
 
         boolean targetIsActivate =
             EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule());
-        if (!showWhenDeactivate) {
-            if (!targetIsActivate) return;
-
+        if (targetIsActivate) {
             ((ITextEditor) ActiveEditor.get()).selectAndReveal(
                 nameRange.getOffset(),
                 nameRange.getLength());
         } else {
-            EditorOpener.open(
-                (IFile) member.getResource(),
-                nameRange.getOffset(),
-                nameRange.getLength());
+            if (showWhenDeactivate) {
+                EditorOpener.open(
+                    (IFile) member.getResource(),
+                    nameRange.getOffset(),
+                    nameRange.getLength());
+            }
         }
     }
 
