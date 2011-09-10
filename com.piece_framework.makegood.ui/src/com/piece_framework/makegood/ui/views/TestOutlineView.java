@@ -28,6 +28,7 @@ import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -102,6 +103,7 @@ public class TestOutlineView extends ViewPart {
     }
 
     private void showEditor(IMember member, Boolean openWhenClosed) {
+        if (member == null) return;
         if (member.getSourceModule() == null) return;
 
         IEditorPart target = findTargetEditor(member);
@@ -151,26 +153,23 @@ public class TestOutlineView extends ViewPart {
     private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
         @Override
         public void doubleClick(DoubleClickEvent event) {
-            if (event.getSelection().isEmpty()) return;
-            Assert.isTrue(event.getSelection() instanceof StructuredSelection);
-            StructuredSelection selection = (StructuredSelection) event.getSelection();
-            Assert.isTrue(selection.getFirstElement() instanceof IMember);
-            IMember member = (IMember) selection.getFirstElement();
-
-            showEditor(member, true);
+            showEditor(getMember(event.getSelection()), true);
         }
 
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
-            if (event.getSelection().isEmpty()) return;
-            Assert.isTrue(event.getSelection() instanceof StructuredSelection);
-            StructuredSelection selection = (StructuredSelection) event.getSelection();
-            Assert.isTrue(selection.getFirstElement() instanceof IMember);
-            IMember member = (IMember) selection.getFirstElement();
-
+            IMember member = (IMember) getMember(event.getSelection());
             if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
 
             showEditor(member, false);
+        }
+
+        private IMember getMember(ISelection selection) {
+            if (selection.isEmpty()) return null;
+            Assert.isTrue(selection instanceof StructuredSelection);
+            StructuredSelection structuredSelection = (StructuredSelection) selection;
+            Assert.isTrue(structuredSelection.getFirstElement() instanceof IMember);
+            return (IMember) structuredSelection.getFirstElement();
         }
     }
 
