@@ -38,11 +38,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -106,8 +101,6 @@ public class TestOutlineView extends ViewPart {
         if (member == null) return;
         if (member.getSourceModule() == null) return;
 
-        IEditorPart target = findTargetEditor(member);
-
         ISourceRange nameRange = null;
         try {
             nameRange = member.getNameRange();
@@ -116,10 +109,12 @@ public class TestOutlineView extends ViewPart {
         }
         if (nameRange == null) return;
 
+        boolean targetIsActivate =
+            EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule());
         if (!showWhenDeactivate) {
-            if (ActiveEditor.get() != target) return;
+            if (!targetIsActivate) return;
 
-            ((ITextEditor) target).selectAndReveal(
+            ((ITextEditor) ActiveEditor.get()).selectAndReveal(
                 nameRange.getOffset(),
                 nameRange.getLength());
         } else {
@@ -128,24 +123,6 @@ public class TestOutlineView extends ViewPart {
                 nameRange.getOffset(),
                 nameRange.getLength());
         }
-    }
-
-    private IEditorPart findTargetEditor(IMember member) {
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (window == null) return null;
-        IWorkbenchPage page = window.getActivePage();
-        if (page == null) return null;
-
-        IEditorPart target = null;
-        for (IEditorReference reference: page.getEditorReferences()) {
-            IEditorPart editor = reference.getEditor(true);
-            EditorParser parser = new EditorParser(editor);
-            if (member.getSourceModule().equals(parser.getSourceModule())) {
-                target = editor;
-                break;
-            }
-        }
-        return target;
     }
 
     private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
