@@ -101,9 +101,7 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
-    private void showEditor(StructuredSelection selection, Boolean openWhenClosed) {
-        Assert.isTrue(selection.getFirstElement() instanceof IMember);
-        IMember member = (IMember) selection.getFirstElement();
+    private void showEditor(IMember member, Boolean openWhenClosed) {
         if (member.getSourceModule() == null) return;
 
         IEditorPart target = findTargetEditor(member);
@@ -159,9 +157,7 @@ public class TestOutlineView extends ViewPart {
             Assert.isTrue(selection.getFirstElement() instanceof IMember);
             IMember member = (IMember) selection.getFirstElement();
 
-            if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
-
-            showEditor(selection, false);
+            showEditor(member, true);
         }
 
         @Override
@@ -169,8 +165,12 @@ public class TestOutlineView extends ViewPart {
             if (event.getSelection().isEmpty()) return;
             Assert.isTrue(event.getSelection() instanceof StructuredSelection);
             StructuredSelection selection = (StructuredSelection) event.getSelection();
+            Assert.isTrue(selection.getFirstElement() instanceof IMember);
+            IMember member = (IMember) selection.getFirstElement();
 
-            showEditor(selection, true);
+            if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
+
+            showEditor(member, false);
         }
     }
 
