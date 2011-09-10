@@ -25,6 +25,7 @@ import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -38,12 +39,15 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.MakeGoodContext;
+import com.piece_framework.makegood.ui.Messages;
 import com.piece_framework.makegood.ui.TestClass;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
@@ -76,6 +80,8 @@ public class TestOutlineView extends ViewPart {
         getSite().registerContextMenu(contextMenuManager, viewer);
         getSite().setSelectionProvider(viewer);
 
+        registerActions();
+
         updateTestOutline();
     }
 
@@ -95,6 +101,10 @@ public class TestOutlineView extends ViewPart {
             MakeGoodContext.getInstance().getTestClassCollector().getAtSourceModule(parser.getSourceModule());
         viewer.setInput(testClasses);
         viewer.expandAll();
+    }
+
+    private void registerActions() {
+        getViewSite().getActionBars().getToolBarManager().add(new CollapseTreeAction());
     }
 
     private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
@@ -190,5 +200,18 @@ public class TestOutlineView extends ViewPart {
         public void inputChanged(Viewer viewer,
                                  Object oldInput,
                                  Object newInput) {}
+    }
+
+    private class CollapseTreeAction extends Action {
+        public CollapseTreeAction() {
+            super(Messages.TestOutlineView_CollapseAll, AS_PUSH_BUTTON);
+            setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL));
+            setDisabledImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL_DISABLED));
+            setToolTipText(getText());
+        }
+
+        public void run() {
+            viewer.collapseAll();
+        }
     }
 }
