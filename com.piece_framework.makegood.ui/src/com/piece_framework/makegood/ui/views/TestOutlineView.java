@@ -102,7 +102,7 @@ public class TestOutlineView extends ViewPart {
         viewer.expandAll();
     }
 
-    private void showEditor(IMember member, Boolean openWhenClosed) {
+    private void showEditor(IMember member, Boolean showWhenDeactivate) {
         if (member == null) return;
         if (member.getSourceModule() == null) return;
 
@@ -116,15 +116,13 @@ public class TestOutlineView extends ViewPart {
         }
         if (nameRange == null) return;
 
-        boolean editorIsOpened = target != null;
-        if (editorIsOpened) {
-            IWorkbenchPage page = target.getSite().getPage();
-            if (page.getActiveEditor() != target) page.activate(target);
+        if (!showWhenDeactivate) {
+            if (ActiveEditor.get() != target) return;
 
             ((ITextEditor) target).selectAndReveal(
                 nameRange.getOffset(),
                 nameRange.getLength());
-        } else if (!editorIsOpened && openWhenClosed) {
+        } else {
             EditorOpener.open(
                 (IFile) member.getResource(),
                 nameRange.getOffset(),
@@ -158,10 +156,7 @@ public class TestOutlineView extends ViewPart {
 
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
-            IMember member = (IMember) getMember(event.getSelection());
-            if (!EditorParser.createActiveEditorParser().getSourceModule().equals(member.getSourceModule())) return;
-
-            showEditor(member, false);
+            showEditor(getMember(event.getSelection()), false);
         }
 
         private IMember getMember(ISelection selection) {
