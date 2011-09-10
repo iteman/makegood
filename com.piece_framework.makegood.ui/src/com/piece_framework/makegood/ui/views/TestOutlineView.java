@@ -68,8 +68,9 @@ public class TestOutlineView extends ViewPart {
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new TestOutlineContentProvider());
         viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
-        viewer.addSelectionChangedListener(new TreeSelectionChangedListener());
-        viewer.addDoubleClickListener(new TreeDoubleClickListener());
+        TreeEventListener eventListener = new TreeEventListener();
+        viewer.addSelectionChangedListener(eventListener);
+        viewer.addDoubleClickListener(eventListener);
 
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
@@ -149,9 +150,9 @@ public class TestOutlineView extends ViewPart {
         return target;
     }
 
-    private class TreeSelectionChangedListener implements ISelectionChangedListener {
+    private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
         @Override
-        public void selectionChanged(SelectionChangedEvent event) {
+        public void doubleClick(DoubleClickEvent event) {
             if (event.getSelection().isEmpty()) return;
             Assert.isTrue(event.getSelection() instanceof StructuredSelection);
             StructuredSelection selection = (StructuredSelection) event.getSelection();
@@ -162,11 +163,9 @@ public class TestOutlineView extends ViewPart {
 
             showEditor(selection, false);
         }
-    }
 
-    private class TreeDoubleClickListener implements IDoubleClickListener {
         @Override
-        public void doubleClick(DoubleClickEvent event) {
+        public void selectionChanged(SelectionChangedEvent event) {
             if (event.getSelection().isEmpty()) return;
             Assert.isTrue(event.getSelection() instanceof StructuredSelection);
             StructuredSelection selection = (StructuredSelection) event.getSelection();
