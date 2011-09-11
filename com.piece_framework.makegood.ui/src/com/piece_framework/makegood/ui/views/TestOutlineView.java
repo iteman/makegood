@@ -47,6 +47,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import com.piece_framework.makegood.ui.Activator;
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.MakeGoodContext;
+import com.piece_framework.makegood.ui.MakeGoodStatus;
+import com.piece_framework.makegood.ui.MakeGoodStatusChangeListener;
 import com.piece_framework.makegood.ui.Messages;
 import com.piece_framework.makegood.ui.TestClass;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
@@ -54,7 +56,7 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
 /**
  * @since 1.x.0
  */
-public class TestOutlineView extends ViewPart {
+public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeListener {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
 
     private TreeViewer viewer;
@@ -82,11 +84,18 @@ public class TestOutlineView extends ViewPart {
 
         registerActions();
 
+        MakeGoodContext.getInstance().addStatusChangeListener(this);
+
         updateTestOutline();
     }
 
     @Override
     public void setFocus() {}
+
+    @Override
+    public void statusChanged(MakeGoodStatus status) {
+        updateTestOutline();
+    }
 
     public void updateTestOutline() {
         if (viewer == null) return;
