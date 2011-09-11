@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dltk.ast.Modifiers;
 import org.eclipse.dltk.core.CompletionRequestor;
 import org.eclipse.dltk.core.IField;
 import org.eclipse.dltk.core.IMethod;
@@ -182,13 +183,21 @@ public class TestClass implements IType {
     public IModelElement[] getChildren() throws ModelException {
         List<IModelElement> children = new ArrayList<IModelElement>();
 
-        children.addAll(Arrays.asList(getMethods()));
+        if (getFlags() != Modifiers.AccNameSpace) {
+            children.addAll(Arrays.asList(getMethods()));
 
-        ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
-        for (IType supertype: hierarchy.getSupertypes(type)) {
-            if (!TestClass.isTestClassSupperType(supertype)) {
-                TestClass testClass = new TestClass(supertype);
-                children.add(testClass);
+            ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
+            for (IType supertype: hierarchy.getSupertypes(type)) {
+                if (!TestClass.isTestClassSupperType(supertype)) {
+                    TestClass testClass = new TestClass(supertype);
+                    children.add(testClass);
+                }
+            }
+        } else {
+            for (IType type: getTypes()) {
+                if (isTestClass(type)) {
+                    children.add(new TestClass(type));
+                }
             }
         }
 
@@ -386,6 +395,14 @@ public class TestClass implements IType {
 
     public static boolean isTestClass(IType type) {
         if (type == null || type.getResource() == null) return false;
+        try {
+            if (type.getFlags() == Modifiers.AccNameSpace) {
+                for (IType child: type.getTypes()) {
+                    if (isTestClass(child)) return true;
+                }
+            }
+        } catch (ModelException e) {}
+
         String[] superClasses = null;
         try {
             superClasses = type.getSuperClasses();
