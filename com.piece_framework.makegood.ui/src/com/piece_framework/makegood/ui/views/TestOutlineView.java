@@ -60,6 +60,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
 
     private TreeViewer viewer;
+    private boolean runningTest;
 
     public TestOutlineView() {}
 
@@ -94,7 +95,12 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
     @Override
     public void statusChanged(MakeGoodStatus status) {
-        updateTestOutline();
+        if (status == MakeGoodStatus.RunningTest) {
+            runningTest = true;
+        } else if (status == MakeGoodStatus.WaitingForTestRun && runningTest) {
+            updateTestOutline();
+            runningTest = false;
+        }
     }
 
     public void updateTestOutline() {
