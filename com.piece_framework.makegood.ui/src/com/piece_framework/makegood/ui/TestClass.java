@@ -43,13 +43,13 @@ import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.core.TestingFramework;
 
 public class TestClass implements IType {
-
     private IType type;
 
     public TestClass(IType type) {
         this.type = type;
     }
 
+    @Override
     public IPath getPath() {
         return type.getPath();
     }
