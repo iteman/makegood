@@ -448,6 +448,14 @@ public class TestClass implements IType {
         return false;
     }
 
+    public boolean isNamespace() {
+        try {
+            return getFlags() == Modifiers.AccNameSpace;
+        } catch (ModelException e) {
+            return false;
+        }
+    }
+
     private TestClass createTestClass(IType type) {
         if (type == null) return null;
         TestClass testClass = new TestClass(type);

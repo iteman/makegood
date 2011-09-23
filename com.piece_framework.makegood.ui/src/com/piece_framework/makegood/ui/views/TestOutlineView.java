@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.dltk.ast.Modifiers;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
@@ -136,7 +135,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         baseTestClasses = new ArrayList<IType>();
         try {
             for (TestClass testClass: testClasses) {
-                if (testClass.getFlags() == Modifiers.AccNameSpace) {
+                if (testClass.isNamespace()) {
                     for (IType type: testClass.getTypes()) {
                         Assert.isTrue(type instanceof TestClass);
                         baseTestClasses.add(type);
