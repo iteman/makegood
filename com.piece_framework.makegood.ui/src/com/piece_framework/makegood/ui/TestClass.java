@@ -42,6 +42,9 @@ import com.piece_framework.makegood.core.MakeGoodProperty;
 import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.core.TestingFramework;
 
+/**
+ * @since 1.x.0
+ */
 public class TestClass implements IType {
     private IType type;
     private IType baseType;
