@@ -48,6 +48,9 @@ public class TestClass implements IType {
 
     public TestClass(IType type) {
         this.type = type;
+        while (this.type instanceof TestClass) {
+            this.type = ((TestClass) this.type).type;
+        }
     }
 
     @Override
