@@ -282,7 +282,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         private boolean checked = false;
 
         public SortAction() {
-            super(Messages.TestOutlineView_Sort, AS_RADIO_BUTTON);
+            super(Messages.TestOutlineView_Sort, AS_CHECK_BOX);
             setImageDescriptor(Activator.getImageDescriptor("icons/sort.gif")); //$NON-NLS-1$
             setToolTipText(getText());
         }
