@@ -55,10 +55,6 @@ public class TestClass implements IType {
         return type.getPath();
     }
 
-    public IType getType() {
-        return type;
-    }
-
     @Override
     public ISourceRange getNameRange() throws ModelException {
         return type.getNameRange();
