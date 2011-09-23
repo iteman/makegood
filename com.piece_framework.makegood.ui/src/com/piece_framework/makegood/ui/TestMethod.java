@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
 import org.eclipse.dltk.core.IModelElementVisitor;
+import org.eclipse.dltk.core.IModelElementVisitorExtension;
 import org.eclipse.dltk.core.IOpenable;
 import org.eclipse.dltk.core.IParameter;
 import org.eclipse.dltk.core.IScriptModel;
@@ -146,7 +147,15 @@ public class TestMethod implements IMethod {
 
     @Override
     public void accept(IModelElementVisitor visitor) throws ModelException {
-        method.accept(visitor);
+        if (visitor.visit(this)) {
+            IModelElement[] elements = getChildren();
+            for (int i = 0; i < elements.length; ++i) {
+                elements[i].accept(visitor);
+            }
+            if (visitor instanceof IModelElementVisitorExtension) {
+                ((IModelElementVisitorExtension) visitor).endVisit(this);
+            }
+        }
     }
 
     @Override
