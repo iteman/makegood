@@ -21,6 +21,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
+import org.eclipse.dltk.core.IModelElement;
+import org.eclipse.dltk.core.IModelElementVisitor;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
@@ -30,6 +32,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -129,6 +132,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
         manager.add(new CollapseTreeAction());
         manager.add(new SortAction());
+        manager.add(new FlatLookAction());
     }
 
     private void collectBaseTestClasses(List<TestClass> testClasses) {
@@ -264,6 +268,37 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
                                  Object newInput) {}
     }
 
+    private class FlatContentProvider extends TestOutlineContentProvider {
+        @Override
+        public Object[] getChildren(Object parentElement) {
+            boolean isNotTestClass =
+                !(parentElement instanceof TestClass)
+                || ((TestClass) parentElement).isNamespace();
+            if (isNotTestClass) return super.getChildren(parentElement);
+
+            return collectMethods((TestClass) parentElement);
+        }
+
+        private Object[] collectMethods(TestClass target) {
+            final List<TestMethod> methods = new ArrayList<TestMethod>();
+            try {
+                target.accept(new IModelElementVisitor() {
+                    @Override
+                    public boolean visit(IModelElement element) {
+                        if (element instanceof TestMethod) {
+                            methods.add((TestMethod) element);
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+            } catch (ModelException e) {
+                Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+            }
+            return methods.toArray();
+        }
+    }
+
     private class CollapseTreeAction extends Action {
         public CollapseTreeAction() {
             super(Messages.TestOutlineView_CollapseAll, AS_PUSH_BUTTON);
@@ -291,6 +326,28 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         public void run() {
             checked = !checked;
             viewer.setSorter(checked ? sorter : null);
+            viewer.expandAll();
+            setChecked(checked);
+        }
+    }
+
+    private class FlatLookAction extends Action {
+        private FlatContentProvider flatContentProvider = new FlatContentProvider();
+        private IContentProvider defaultContentProvider;
+        private boolean checked = false;
+
+        public FlatLookAction() {
+            super(Messages.TestOutlineView_FlatLook, AS_RADIO_BUTTON);
+            setImageDescriptor(Activator.getImageDescriptor("icons/flat-look.gif")); //$NON-NLS-1$
+            setToolTipText(getText());
+
+            defaultContentProvider = viewer.getContentProvider();
+        }
+
+        @Override
+        public void run() {
+            checked = !checked;
+            viewer.setContentProvider(checked ? flatContentProvider : defaultContentProvider);
             viewer.expandAll();
             setChecked(checked);
         }
