@@ -28,6 +28,7 @@ import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -38,6 +39,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -125,7 +127,9 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
     }
 
     private void registerActions() {
-        getViewSite().getActionBars().getToolBarManager().add(new CollapseTreeAction());
+        IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
+        manager.add(new CollapseTreeAction());
+        manager.add(new SortAction());
     }
 
     private void collectBaseTestClasses(List<TestClass> testClasses) {
@@ -271,6 +275,25 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         public void run() {
             viewer.collapseAll();
+        }
+    }
+
+    private class SortAction extends Action {
+        private ViewerSorter sorter = new ViewerSorter();
+        private boolean checked = false;
+
+        public SortAction() {
+            super(Messages.TestOutlineView_Sort, AS_RADIO_BUTTON);
+            setImageDescriptor(Activator.getImageDescriptor("icons/sort.gif")); //$NON-NLS-1$
+            setToolTipText(getText());
+        }
+
+        @Override
+        public void run() {
+            checked = !checked;
+            viewer.setSorter(checked ? sorter : null);
+            viewer.expandAll();
+            setChecked(checked);
         }
     }
 }

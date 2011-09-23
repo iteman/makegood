@@ -183,6 +183,11 @@ public class Messages extends NLS {
      */
     public static String TestOutlineView_CollapseAll;
 
+    /**
+     * @since 1.x.0
+     */
+    public static String TestOutlineView_Sort;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
