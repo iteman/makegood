@@ -77,7 +77,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         parent.setLayout(new FillLayout());
 
         viewer = new TreeViewer(parent);
-        viewer.setContentProvider(new TestOutlineContentProvider());
+        viewer.setContentProvider(new HierarchyContentProvider());
         viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
         TreeEventListener eventListener = new TreeEventListener();
         viewer.addSelectionChangedListener(eventListener);
@@ -132,7 +132,8 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
         manager.add(new CollapseTreeAction());
         manager.add(new SortAction());
-        manager.add(new FlatLookAction());
+        manager.add(new FlatLookAction(false));
+        manager.add(new HierarchyLookAction(true));
     }
 
     private void collectBaseTestClasses(List<TestClass> testClasses) {
@@ -218,7 +219,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         }
     }
 
-    private class TestOutlineContentProvider implements ITreeContentProvider {
+    private class HierarchyContentProvider implements ITreeContentProvider {
         @Override
         public Object[] getElements(Object inputElement) {
             return getChildren(inputElement);
@@ -268,7 +269,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
                                  Object newInput) {}
     }
 
-    private class FlatContentProvider extends TestOutlineContentProvider {
+    private class FlatContentProvider extends HierarchyContentProvider {
         @Override
         public Object[] getChildren(Object parentElement) {
             boolean isNotTestClass =
@@ -331,25 +332,53 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         }
     }
 
-    private class FlatLookAction extends Action {
-        private FlatContentProvider flatContentProvider = new FlatContentProvider();
-        private IContentProvider defaultContentProvider;
-        private boolean checked = false;
+    private abstract class LookAction extends Action {
+        private boolean checked;
 
-        public FlatLookAction() {
-            super(Messages.TestOutlineView_FlatLook, AS_RADIO_BUTTON);
-            setImageDescriptor(Activator.getImageDescriptor("icons/flat-look.gif")); //$NON-NLS-1$
+        public LookAction(String text, boolean checked) {
+            super(text, AS_RADIO_BUTTON);
             setToolTipText(getText());
 
-            defaultContentProvider = viewer.getContentProvider();
+            this.checked = checked;
+            setChecked(this.checked);
         }
 
         @Override
         public void run() {
             checked = !checked;
-            viewer.setContentProvider(checked ? flatContentProvider : defaultContentProvider);
-            viewer.expandAll();
             setChecked(checked);
+            viewer.setContentProvider(getContentProvider());
+            viewer.expandAll();
+        }
+
+        abstract IContentProvider getContentProvider();
+    }
+
+    private class FlatLookAction extends LookAction {
+        private IContentProvider flatContentProvider = new FlatContentProvider();
+
+        public FlatLookAction(boolean checked) {
+            super(Messages.TestOutlineView_FlatLook, checked);
+            setImageDescriptor(Activator.getImageDescriptor("icons/flat-look.gif")); //$NON-NLS-1$
+        }
+
+        @Override
+        IContentProvider getContentProvider() {
+            return flatContentProvider;
+        }
+    }
+
+    private class HierarchyLookAction extends LookAction {
+        private IContentProvider hierarchyContentProvider = new HierarchyContentProvider();
+
+        public HierarchyLookAction(boolean checked) {
+            super(Messages.TestOutlineView_HierarchyLook, checked);
+            setImageDescriptor(Activator.getImageDescriptor("icons/hierarchy-look.gif")); //$NON-NLS-1$
+        }
+
+        @Override
+        IContentProvider getContentProvider() {
+            return hierarchyContentProvider;
         }
     }
 }
