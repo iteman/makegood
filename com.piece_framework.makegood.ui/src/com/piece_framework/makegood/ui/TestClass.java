@@ -44,6 +44,7 @@ import com.piece_framework.makegood.core.TestingFramework;
 
 public class TestClass implements IType {
     private IType type;
+    private IType baseType;
 
     public TestClass(IType type) {
         this.type = type;
@@ -70,7 +71,7 @@ public class TestClass implements IType {
 
     @Override
     public IType getDeclaringType() {
-        return type.getDeclaringType();
+        return createTestClass(type.getDeclaringType());
     }
 
     @Override
@@ -80,7 +81,7 @@ public class TestClass implements IType {
 
     @Override
     public IType getType(String name, int occurrenceCount) {
-        return type.getType(name, occurrenceCount);
+        return createTestClass(type.getType(name, occurrenceCount));
     }
 
     @Override
@@ -189,14 +190,13 @@ public class TestClass implements IType {
             ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
             for (IType supertype: hierarchy.getSupertypes(type)) {
                 if (!TestClass.isTestClassSupperType(supertype)) {
-                    TestClass testClass = new TestClass(supertype);
-                    children.add(testClass);
+                    children.add(createTestClass(supertype));
                 }
             }
         } else {
             for (IType type: getTypes()) {
                 if (isTestClass(type)) {
-                    children.add(new TestClass(type));
+                    children.add(createTestClass(type));
                 }
             }
         }
@@ -206,7 +206,7 @@ public class TestClass implements IType {
 
     @Override
     public boolean hasChildren() throws ModelException {
-        return type.hasChildren();
+        return getChildren().length > 0;
     }
 
     @Override
@@ -226,24 +226,28 @@ public class TestClass implements IType {
 
     @Override
     public IType getType(String name) {
-        return type.getType(name);
+        return createTestClass(type.getType(name));
     }
 
     @Override
     public IType[] getTypes() throws ModelException {
-        return type.getTypes();
+        List<IType> types= new ArrayList<IType>();
+        for (IType type: this.type.getTypes()) {
+            types.add(createTestClass(type));
+        }
+        return types.toArray(new IType[0]);
     }
 
     @Override
     public IMethod getMethod(String name) {
-        return type.getMethod(name);
+        return createTestMethod(type.getMethod(name));
     }
 
     @Override
     public IMethod[] getMethods() throws ModelException {
         List<IMethod> methods = new ArrayList<IMethod>();
         for (IMethod method: type.getMethods()) {
-            if (PHPResource.isTestMethod(method)) methods.add(method);
+            if (PHPResource.isTestMethod(method)) methods.add(createTestMethod(method));
         }
         return methods.toArray(new IMethod[0]);
     }
@@ -420,10 +424,38 @@ public class TestClass implements IType {
 
         try {
             ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
-            for (IType superType: hierarchy.getAllSuperclasses(type)) {
+            IType target = (type instanceof TestClass) ? ((TestClass) type).type : type;
+            for (IType superType: hierarchy.getAllSuperclasses(target)) {
                 if (isTestClass(superType)) return true;
             }
         } catch (ModelException e) {}
         return false;
+    }
+
+    public void setBaseType(IType baseType) {
+        this.baseType = baseType;
+    }
+
+    public boolean isSubtype(IType targetSuperType) throws ModelException {
+        ITypeHierarchy hierarchy = newSupertypeHierarchy(new NullProgressMonitor());
+        for (IType superType: hierarchy.getAllSuperclasses(type)) {
+            if (superType.getElementName().equals(targetSuperType.getElementName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private TestClass createTestClass(IType type) {
+        if (type == null) return null;
+        TestClass testClass = new TestClass(type);
+        if (baseType != null) testClass.setBaseType(baseType);
+        return testClass;
+    }
+
+    private TestMethod createTestMethod(IMethod method) {
+        TestMethod testMethod = new TestMethod(method);
+        if (baseType != null) testMethod.setBaseType(baseType);
+        return testMethod;
     }
 }
