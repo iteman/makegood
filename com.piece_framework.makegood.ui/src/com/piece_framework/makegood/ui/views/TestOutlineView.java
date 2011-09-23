@@ -19,9 +19,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.dltk.ast.Modifiers;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.ISourceRange;
+import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
@@ -51,6 +53,7 @@ import com.piece_framework.makegood.ui.MakeGoodStatus;
 import com.piece_framework.makegood.ui.MakeGoodStatusChangeListener;
 import com.piece_framework.makegood.ui.Messages;
 import com.piece_framework.makegood.ui.TestClass;
+import com.piece_framework.makegood.ui.TestMethod;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
@@ -61,6 +64,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
     private TreeViewer viewer;
     private boolean runningTest;
+    private List<IType> baseTestClasses;
 
     public TestOutlineView() {}
 
@@ -116,10 +120,30 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
             MakeGoodContext.getInstance().getTestClassCollector().getAtSourceModule(parser.getSourceModule());
         viewer.setInput(testClasses);
         viewer.expandAll();
+
+        collectBaseTestClasses(testClasses);
     }
 
     private void registerActions() {
         getViewSite().getActionBars().getToolBarManager().add(new CollapseTreeAction());
+    }
+
+    private void collectBaseTestClasses(List<TestClass> testClasses) {
+        baseTestClasses = new ArrayList<IType>();
+        try {
+            for (TestClass testClass: testClasses) {
+                if (testClass.getFlags() == Modifiers.AccNameSpace) {
+                    for (IType type: testClass.getTypes()) {
+                        Assert.isTrue(type instanceof TestClass);
+                        baseTestClasses.add(type);
+                    }
+                } else {
+                    baseTestClasses.add(testClass);
+                }
+            }
+        } catch (ModelException e) {
+            Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+        }
     }
 
     private class TreeEventListener implements ISelectionChangedListener, IDoubleClickListener {
@@ -131,6 +155,12 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
             showEditor(event.getSelection(), false);
+
+            StructuredSelection structuredSelection = (StructuredSelection) event.getSelection();
+            if (structuredSelection.getFirstElement() instanceof TestMethod) {
+                setBaseTestClassToTestMethod(
+                    (TestMethod) structuredSelection.getFirstElement());
+            }
         }
 
         private void showEditor(ISelection selection, Boolean showWhenDeactivate) {
@@ -163,6 +193,20 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
                             nameRange.getOffset(),
                             nameRange.getLength());
                 }
+            }
+        }
+
+        private void setBaseTestClassToTestMethod(TestMethod method) {
+            IType type = (IType) method.getParent();
+            try {
+                for (IType baseTestClass: baseTestClasses) {
+                    Assert.isTrue(baseTestClass instanceof TestClass);
+                    if (((TestClass) baseTestClass).isSubtype(type)) {
+                        method.setBaseType(baseTestClass);
+                    }
+                }
+            } catch (ModelException e) {
+                Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
             }
         }
     }
