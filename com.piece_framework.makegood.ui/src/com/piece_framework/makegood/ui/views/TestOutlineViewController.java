@@ -51,6 +51,7 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
 
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
+        if (partRef.getId().equals(TestOutlineView.ID)) return;
         updateTestOutline();
     }
 
