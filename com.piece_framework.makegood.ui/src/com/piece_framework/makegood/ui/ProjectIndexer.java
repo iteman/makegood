@@ -23,6 +23,8 @@ import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.search.indexing.IndexDocument;
 import org.eclipse.dltk.core.search.indexing.core.AbstractProjectIndexer;
 
+import com.piece_framework.makegood.core.TestingFramework;
+
 public class ProjectIndexer extends AbstractProjectIndexer {
 
     @Override
@@ -49,7 +51,7 @@ public class ProjectIndexer extends AbstractProjectIndexer {
 
         for (IType type: types) {
             try {
-                if (TestClass.isTestClassSupperType(type)) {
+                if (TestingFramework.isTestClassSuperType(type)) {
                     collectTestClass(type);
                 }
 

@@ -12,6 +12,9 @@
 
 package com.piece_framework.makegood.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
@@ -110,6 +113,8 @@ public enum TestingFramework {
         }
     };
 
+    private static List<String> superTypesOfAllTestingFrameworks;
+
     /**
      * @since 1.6.0
      */
@@ -119,6 +124,25 @@ public enum TestingFramework {
      * @since 1.7.0
      */
     public abstract String[] getRequiredSuperTypes();
+
+    /**
+     * @since 1.x.0
+     */
+    public static boolean isTestClassSuperType(IType type) {
+        if (superTypesOfAllTestingFrameworks == null) {
+            superTypesOfAllTestingFrameworks = new ArrayList<String>();
+            for (TestingFramework testingFramework: values()) {
+                for (String superType: testingFramework.getTestClassSuperTypes()) {
+                    superTypesOfAllTestingFrameworks.add(superType);
+                }
+            }
+        }
+        if (type == null) return false;
+        for (String superType: superTypesOfAllTestingFrameworks) {
+            if (type.getElementName().equals(superType)) return true;
+        }
+        return false;
+    }
 
     /**
      * @since 1.x.0
@@ -149,7 +173,7 @@ public enum TestingFramework {
         return false;
     }
 
-    private static boolean hasTests(IType type, String testClassSuperType) throws ModelException {
+    private boolean hasTests(IType type, String testClassSuperType) throws ModelException {
         // TODO Type Hierarchy by PDT 2.1 does not work with namespaces.
         ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
         if (hierarchy == null) return false;

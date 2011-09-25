@@ -200,7 +200,7 @@ public class TestClass implements IType {
 
             ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
             for (IType supertype: hierarchy.getSupertypes(type)) {
-                if (!TestClass.isTestClassSupperType(supertype)) {
+                if (!TestingFramework.isTestClassSuperType(supertype)) {
                     children.add(createTestClass(supertype));
                 }
             }
@@ -388,24 +388,6 @@ public class TestClass implements IType {
     public ITypeHierarchy newTypeHierarchy(WorkingCopyOwner owner,
                                            IProgressMonitor monitor) throws ModelException {
         return type.newSupertypeHierarchy(owner, monitor);
-    }
-
-    public static boolean isTestClassSupperType(IType type) {
-        List<String> testClassSuperTypes = new ArrayList<String>();
-        if (type != null && type.getResource() != null) {
-            testClassSuperTypes.addAll(
-                Arrays.asList(new MakeGoodProperty(type.getResource()).getTestingFramework().getTestClassSuperTypes()));
-        } else {
-            testClassSuperTypes.addAll(Arrays.asList(TestingFramework.PHPUnit.getTestClassSuperTypes()));
-            testClassSuperTypes.addAll(Arrays.asList(TestingFramework.SimpleTest.getTestClassSuperTypes()));
-            testClassSuperTypes.addAll(Arrays.asList(TestingFramework.CakePHP.getTestClassSuperTypes()));
-            testClassSuperTypes.addAll(Arrays.asList(TestingFramework.CIUnit.getTestClassSuperTypes()));
-        }
-
-        for (String testClassSuperType: testClassSuperTypes) {
-            if (type.getElementName().equals(testClassSuperType)) return true;
-        }
-        return false;
     }
 
     public static boolean isTestClass(IType type) {
