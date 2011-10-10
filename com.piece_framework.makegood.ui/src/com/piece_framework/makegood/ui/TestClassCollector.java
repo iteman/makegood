@@ -22,6 +22,8 @@ import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
 
+import com.piece_framework.makegood.core.MakeGoodProperty;
+
 public class TestClassCollector {
     private Map<String, TestClass> testClasses;
     private List<TestClassCollectorChangeListener> collectorChangeListeners = new ArrayList<TestClassCollectorChangeListener>();
@@ -51,6 +53,8 @@ public class TestClassCollector {
     public List<TestClass> getAtSourceModule(ISourceModule sourceModule) {
         List<TestClass> result = new ArrayList<TestClass>();
         if (sourceModule == null) return result;
+        if (!(new MakeGoodProperty(sourceModule.getResource())
+                .getTestingFramework().hasTests(sourceModule))) return result;
 
         try {
             for (IType type: sourceModule.getTypes()) {
