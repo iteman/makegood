@@ -20,6 +20,7 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.progress.UIJob;
 
+import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.TestClassCollectorChangeListener;
 
 /**
@@ -29,12 +30,13 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
     private static final String NAME = "MakeGood Test Outline Update";
 
     @Override
-    public void collectorChanged(IType type) {
+    public void collectorChanged(final IType type) {
         if (Job.getJobManager().find(NAME).length > 0) return;
 
         UIJob job = new UIJob(NAME) {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
+                if (!existsTypeInActiveEditor(type)) return Status.OK_STATUS;
                 updateTestOutline();
                 return Status.OK_STATUS;
             }
@@ -88,5 +90,16 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
         if (view != null) {
             view.updateTestOutline();
         }
+    }
+
+    private boolean existsTypeInActiveEditor(IType type) {
+        EditorParser parser = EditorParser.createActiveEditorParser();
+        if (parser == null) return false;
+        for (IType typeInEditor: parser.getTypes()) {
+            if (type.getElementName().equals(typeInEditor.getElementName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
