@@ -48,6 +48,7 @@ import com.piece_framework.makegood.core.TestingFramework;
 public class TestClass implements IType {
     private IType type;
     private IType baseType;
+    private IModelElement[] children;
 
     public TestClass(IType type) {
         this.type = type;
@@ -192,12 +193,13 @@ public class TestClass implements IType {
 
     @Override
     public IModelElement[] getChildren() throws ModelException {
-        List<IModelElement> children = new ArrayList<IModelElement>();
+        if (this.children != null) return this.children;
 
+        List<IModelElement> children = new ArrayList<IModelElement>();
         if (getFlags() != Modifiers.AccNameSpace) {
             children.addAll(Arrays.asList(getMethods()));
 
-            ITypeHierarchy hierarchy = newTypeHierarchy(new NullProgressMonitor());
+            ITypeHierarchy hierarchy = newSupertypeHierarchy(new NullProgressMonitor());
             for (IType supertype: hierarchy.getSupertypes(type)) {
                 if (!TestingFramework.isTestClassSuperType(supertype)) {
                     children.add(createTestClass(supertype));
@@ -210,8 +212,9 @@ public class TestClass implements IType {
                 }
             }
         }
+        this.children = children.toArray(new IModelElement[0]);
 
-        return children.toArray(new IModelElement[0]);
+        return this.children;
     }
 
     @Override
