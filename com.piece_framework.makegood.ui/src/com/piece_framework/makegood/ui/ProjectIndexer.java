@@ -22,6 +22,7 @@ import org.eclipse.dltk.core.ITypeHierarchy;
 import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.search.indexing.IndexDocument;
 import org.eclipse.dltk.core.search.indexing.core.AbstractProjectIndexer;
+import org.eclipse.ui.PlatformUI;
 
 import com.piece_framework.makegood.core.TestingFramework;
 
@@ -29,11 +30,14 @@ public class ProjectIndexer extends AbstractProjectIndexer {
 
     @Override
     public void doIndexing(final IndexDocument document) {
+        if (PlatformUI.getWorkbench().isClosing()) return;
+
         for (Job job: Job.getJobManager().find(null)) {
             if (job.getName().startsWith("DLTK indexing")) {
                 job.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
+                        if (PlatformUI.getWorkbench().isClosing()) return;
                         ProjectIndexer.this.doIndexing(document);
                     }
                 });
@@ -62,6 +66,8 @@ public class ProjectIndexer extends AbstractProjectIndexer {
                 }
             } catch (ModelException e) {
                 Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+            } catch (NullPointerException e) {  // This exception is raised sometimes in the closing process.
+                return;
             }
         }
     }
