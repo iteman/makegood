@@ -18,6 +18,7 @@ import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
 import org.eclipse.dltk.core.IModelElementVisitor;
 import org.eclipse.dltk.core.IModelElementVisitorExtension;
+import org.eclipse.dltk.core.INamespace;
 import org.eclipse.dltk.core.IOpenable;
 import org.eclipse.dltk.core.IParameter;
 import org.eclipse.dltk.core.IScriptModel;
@@ -217,6 +218,11 @@ public class TestMethod implements IMethod {
     @Override
     public String getType() throws ModelException {
         return method.getType();
+    }
+
+    @Override
+    public INamespace getNamespace() throws ModelException {
+        return method.getNamespace();
     }
 
     public void setBaseType(IType baseType) {

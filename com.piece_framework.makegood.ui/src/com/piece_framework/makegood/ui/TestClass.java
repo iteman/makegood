@@ -28,6 +28,7 @@ import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
 import org.eclipse.dltk.core.IModelElementVisitor;
 import org.eclipse.dltk.core.IModelElementVisitorExtension;
+import org.eclipse.dltk.core.INamespace;
 import org.eclipse.dltk.core.IOpenable;
 import org.eclipse.dltk.core.IScriptFolder;
 import org.eclipse.dltk.core.IScriptModel;
@@ -268,13 +269,11 @@ public class TestClass implements IType {
     }
 
     @Override
-    @SuppressWarnings(value = "deprecation")
     public String getFullyQualifiedName(String enclosingTypeSeparator) {
         return type.getFullyQualifiedName(enclosingTypeSeparator);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public String getFullyQualifiedName() {
         return type.getFullyQualifiedName();
     }
@@ -392,6 +391,11 @@ public class TestClass implements IType {
     public ITypeHierarchy newTypeHierarchy(WorkingCopyOwner owner,
                                            IProgressMonitor monitor) throws ModelException {
         return type.newSupertypeHierarchy(owner, monitor);
+    }
+
+    @Override
+    public INamespace getNamespace() throws ModelException {
+        return type.getNamespace();
     }
 
     public static boolean isTestClass(IType type) {
