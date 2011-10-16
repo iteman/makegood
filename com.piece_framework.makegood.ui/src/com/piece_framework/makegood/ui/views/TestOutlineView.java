@@ -94,8 +94,6 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         registerActions();
 
         MakeGoodContext.getInstance().addStatusChangeListener(this);
-
-        updateTestOutline();
     }
 
     @Override
