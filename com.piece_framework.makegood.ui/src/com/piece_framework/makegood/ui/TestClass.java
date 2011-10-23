@@ -40,7 +40,6 @@ import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.WorkingCopyOwner;
 
 import com.piece_framework.makegood.core.MakeGoodProperty;
-import com.piece_framework.makegood.core.PHPResource;
 import com.piece_framework.makegood.core.TestingFramework;
 
 /**
@@ -257,8 +256,10 @@ public class TestClass implements IType {
     @Override
     public IMethod[] getMethods() throws ModelException {
         List<IMethod> methods = new ArrayList<IMethod>();
+        if (type.getResource() == null) return methods.toArray(new IMethod[0]);
+        TestingFramework testingFramework = new MakeGoodProperty(type.getResource()).getTestingFramework();
         for (IMethod method: type.getMethods()) {
-            if (PHPResource.isTestMethod(method)) methods.add(createTestMethod(method));
+            if (testingFramework.isTestMethod(method)) methods.add(createTestMethod(method));
         }
         return methods.toArray(new IMethod[0]);
     }

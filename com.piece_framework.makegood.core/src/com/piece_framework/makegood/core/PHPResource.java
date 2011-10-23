@@ -12,9 +12,6 @@
 
 package com.piece_framework.makegood.core;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -22,8 +19,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.dltk.ast.Modifiers;
-import org.eclipse.dltk.core.IMethod;
-import org.eclipse.dltk.core.IModelElement;
 import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ITypeHierarchy;
@@ -79,42 +74,6 @@ public class PHPResource {
             if (PHPClassType.fromIType(supertype).getTypeName().equals(testClassSuperType)) {
                 return true;
             }
-        }
-        return false;
-    }
-
-    /**
-     * @since 1.x.0
-     */
-    public static boolean isTestMethod(IMethod method) throws ModelException {
-        if (method == null) return false;
-        if (!hasTests(method.getSourceModule())) return false;
-
-        int flags = method.getFlags();
-        if ((flags & Modifiers.AccPublic) == 0) return false;
-        if ((flags & Modifiers.AccStatic) != 0) return false;
-
-        if (method.getElementName().startsWith("test")) return true;
-
-        IType type = (IType) method.getParent();
-        IMethod beforeMethod = null;
-        for (IModelElement element: type.getChildren()) {
-            if (!(element instanceof IMethod)) continue;
-            if (!method.getElementName().equals(element.getElementName())) {
-                beforeMethod = (IMethod) element;
-                continue;
-            }
-
-            int startIndex =
-                beforeMethod != null ?
-                    beforeMethod.getSourceRange().getOffset() + beforeMethod.getSourceRange().getLength() :
-                    type.getSourceRange().getOffset();
-            String target =
-                method.getSourceModule().getSource().substring(
-                    startIndex, method.getSourceRange().getOffset());
-            Pattern pattern = Pattern.compile("/\\*.+@test.+\\*/", Pattern.MULTILINE + Pattern.DOTALL);
-            Matcher matcher = pattern.matcher(target);
-            return matcher.find();
         }
         return false;
     }
