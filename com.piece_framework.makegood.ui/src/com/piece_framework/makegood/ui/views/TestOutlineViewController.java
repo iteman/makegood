@@ -16,27 +16,31 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.progress.UIJob;
 
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.TestClassCollectorChangeListener;
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
  * @since 1.x.0
  */
 public class TestOutlineViewController implements TestClassCollectorChangeListener, IPartListener2 {
     private static final String NAME = "MakeGood Test Outline Update";
+    private IEditorPart activePHPEditor;
 
     @Override
     public void collectorChanged(final IType type) {
         if (Job.getJobManager().find(NAME).length > 0) return;
+        if (activePHPEditor == null) return;
+        if (!existsTypeInEditor(type, activePHPEditor)) return;
 
         UIJob job = new UIJob(NAME) {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
-                if (!existsTypeInActiveEditor(type)) return Status.OK_STATUS;
                 updateTestOutline();
                 return Status.OK_STATUS;
             }
@@ -53,7 +57,10 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
 
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
+        activePHPEditor = ActiveEditor.isPHP() ? ActiveEditor.get() : null;
+
         if (partRef.getId().equals(TestOutlineView.ID)) return;
+
         updateTestOutline();
     }
 
@@ -92,9 +99,9 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
         }
     }
 
-    private boolean existsTypeInActiveEditor(IType type) {
-        EditorParser parser = EditorParser.createActiveEditorParser();
-        if (parser == null) return false;
+    private boolean existsTypeInEditor(IType type, IEditorPart editor) {
+        EditorParser parser = new EditorParser(editor);
+        if (parser.getTypes() == null) return false;
         for (IType typeInEditor: parser.getTypes()) {
             if (type.getElementName().equals(typeInEditor.getElementName())) {
                 return true;
