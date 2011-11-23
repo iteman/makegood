@@ -16,6 +16,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
@@ -24,6 +25,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
+import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.ResultViewController;
 
 public class MakeGoodPreparer implements IStartup {
@@ -43,10 +45,14 @@ public class MakeGoodPreparer implements IStartup {
                 page.addPartListener(MakeGoodContext.getInstance().getStatusMonitor());
                 page.addPartListener(testOutlinePartListener);
                 IWorkbenchPart activePart = page.getActivePart();
+
                 if (activePart != null) {
                     MakeGoodContext.getInstance().getActivePart().update(activePart);
                     if (!(activePart instanceof AbstractTextEditor)) {
                         MakeGoodContext.getInstance().getStatusMonitor().addSelectionChangedListener(activePart);
+                    }
+                    if (ActiveEditor.isPHP((IEditorPart) activePart)) {
+                        TestOutlinePartListener.addReconcileListener((IEditorPart) activePart);
                     }
                 }
             }
