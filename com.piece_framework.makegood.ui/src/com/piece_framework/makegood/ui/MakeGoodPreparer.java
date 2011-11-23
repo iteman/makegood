@@ -15,9 +15,6 @@ package com.piece_framework.makegood.ui;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -25,7 +22,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
-import com.piece_framework.makegood.ui.ide.ActiveEditor;
 import com.piece_framework.makegood.ui.views.ResultViewController;
 import com.piece_framework.makegood.ui.views.TestOutlineViewController;
 
@@ -40,20 +36,16 @@ public class MakeGoodPreparer implements IStartup {
      */
     private void prepare() {
         MakeGoodContext.getInstance().getStatusMonitor().addPreferenceChangeListener(new InstanceScope());
-        TestOutlinePartListener testOutlinePartListener = new TestOutlinePartListener();
+        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(new TestOutlineViewController());
         for (IWorkbenchWindow window: PlatformUI.getWorkbench().getWorkbenchWindows()) {
             for (IWorkbenchPage page: window.getPages()) {
                 page.addPartListener(MakeGoodContext.getInstance().getStatusMonitor());
-                page.addPartListener(testOutlinePartListener);
                 IWorkbenchPart activePart = page.getActivePart();
 
                 if (activePart != null) {
                     MakeGoodContext.getInstance().getActivePart().update(activePart);
                     if (!(activePart instanceof AbstractTextEditor)) {
                         MakeGoodContext.getInstance().getStatusMonitor().addSelectionChangedListener(activePart);
-                    }
-                    if (ActiveEditor.isPHP((IEditorPart) activePart)) {
-                        TestOutlinePartListener.addReconcileListener((IEditorPart) activePart);
                     }
                 }
             }
@@ -62,6 +54,5 @@ public class MakeGoodPreparer implements IStartup {
         DebugPlugin.getDefault().addDebugEventListener(new ResultViewController());
         PlatformUI.getWorkbench().addWorkbenchListener(MakeGoodContext.getInstance());
         ResourcesPlugin.getWorkspace().addResourceChangeListener(new Autotest());
-        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(new TestOutlineViewController());
     }
 }
