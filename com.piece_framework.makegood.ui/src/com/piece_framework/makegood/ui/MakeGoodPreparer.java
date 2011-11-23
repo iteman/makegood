@@ -36,12 +36,14 @@ public class MakeGoodPreparer implements IStartup {
      */
     private void prepare() {
         MakeGoodContext.getInstance().getStatusMonitor().addPreferenceChangeListener(new InstanceScope());
-        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(new TestOutlineViewController());
+        TestOutlineViewController testOutlineViewController = new TestOutlineViewController();
+        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(testOutlineViewController);
         for (IWorkbenchWindow window: PlatformUI.getWorkbench().getWorkbenchWindows()) {
             for (IWorkbenchPage page: window.getPages()) {
                 page.addPartListener(MakeGoodContext.getInstance().getStatusMonitor());
-                IWorkbenchPart activePart = page.getActivePart();
+                page.addPartListener(testOutlineViewController);
 
+                IWorkbenchPart activePart = page.getActivePart();
                 if (activePart != null) {
                     MakeGoodContext.getInstance().getActivePart().update(activePart);
                     if (!(activePart instanceof AbstractTextEditor)) {

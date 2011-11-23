@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.progress.UIJob;
 
 import com.piece_framework.makegood.ui.TestClassCollectorChangeListener;
@@ -23,11 +25,48 @@ import com.piece_framework.makegood.ui.TestClassCollectorChangeListener;
 /**
  * @since 1.x.0
  */
-public class TestOutlineViewController implements TestClassCollectorChangeListener {
+public class TestOutlineViewController implements TestClassCollectorChangeListener, IPartListener2 {
     private static final String NAME = "MakeGood Test Outline Update";
 
     @Override
     public void collectorChanged(IType type) {
+        updateTestOutlineView();
+    }
+
+    @Override
+    public void partActivated(IWorkbenchPartReference partRef) {
+        updateTestOutlineView();
+    }
+
+    @Override
+    public void partBroughtToTop(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partClosed(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partDeactivated(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partOpened(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partHidden(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partVisible(IWorkbenchPartReference partRef) {
+    }
+
+    @Override
+    public void partInputChanged(IWorkbenchPartReference partRef) {
+    }
+
+    private void updateTestOutlineView() {
         if (Job.getJobManager().find(NAME).length > 0) return;
 
         UIJob job = new UIJob(NAME) {
