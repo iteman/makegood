@@ -105,7 +105,9 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         if (status == MakeGoodStatus.RunningTest) {
             runningTest = true;
         } else if (status == MakeGoodStatus.WaitingForTestRun && runningTest) {
-            updateTestOutline();
+            if (ActiveEditor.isPHP()) {
+                updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
+            }
             runningTest = false;
         }
     }
