@@ -23,6 +23,7 @@ import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
 import org.eclipse.dltk.core.IModelElementVisitor;
+import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
@@ -109,7 +110,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         }
     }
 
-    public void updateTestOutline() {
+    public void updateTestOutline(ISourceModule module) {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
 
@@ -117,9 +118,17 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         if (!ActiveEditor.isPHP()) return;
 
-        EditorParser parser = EditorParser.createActiveEditorParser();
-        List<TestClass> testClasses =
-            MakeGoodContext.getInstance().getTestClassCollector().getAtSourceModule(parser.getSourceModule());
+        List<TestClass> testClasses = new ArrayList<TestClass>();
+        try {
+            for (IType type: module.getTypes()) {
+                if (!TestClass.isTestClass(type)) continue;
+                TestClass testClass = new TestClass(type);
+                testClasses.add(testClass);
+            }
+        } catch (ModelException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         viewer.setInput(testClasses);
         viewer.expandAll();
 
