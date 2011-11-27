@@ -15,7 +15,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
+import org.eclipse.php.internal.core.ast.nodes.Program;
+import org.eclipse.php.internal.ui.editor.IPhpScriptReconcilingListener;
+import org.eclipse.php.internal.ui.editor.PHPStructuredEditor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
@@ -55,13 +59,34 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
         job.schedule();
     }
 
+    @SuppressWarnings("restriction")
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
-        activePHPEditor = ActiveEditor.isPHP() ? ActiveEditor.get() : null;
-
         if (partRef.getId().equals(TestOutlineView.ID)) return;
 
-        updateTestOutline();
+        IEditorPart activePHPEditor = ActiveEditor.isPHP() ? ActiveEditor.get() : null;
+        if (activePHPEditor == null) return;
+
+        ((PHPStructuredEditor) activePHPEditor).addReconcileListener(new IPhpScriptReconcilingListener() {
+            @Override
+            public void aboutToBeReconciled() {
+            }
+
+            @Override
+            public void reconciled(final Program program,
+                                   boolean forced,
+                                   IProgressMonitor progressMonitor) {
+                new UIJob("MakeGood Update Test Outline") {
+                    @Override
+                    public IStatus runInUIThread(IProgressMonitor monitor) {
+                        updateTestOutline(program.getSourceModule());
+                        return Status.OK_STATUS;
+                    }
+                }.schedule();
+            }
+        });
+
+        updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
     }
 
     @Override
@@ -92,10 +117,10 @@ public class TestOutlineViewController implements TestClassCollectorChangeListen
     public void partInputChanged(IWorkbenchPartReference partRef) {
     }
 
-    private void updateTestOutline() {
+    private void updateTestOutline(ISourceModule module) {
         TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
         if (view != null) {
-            view.updateTestOutline();
+            view.updateTestOutline(module);
         }
     }
 
