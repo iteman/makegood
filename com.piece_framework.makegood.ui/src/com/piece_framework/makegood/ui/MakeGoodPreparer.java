@@ -37,7 +37,6 @@ public class MakeGoodPreparer implements IStartup {
     private void prepare() {
         MakeGoodContext.getInstance().getStatusMonitor().addPreferenceChangeListener(new InstanceScope());
         TestOutlineViewController testOutlineViewController = new TestOutlineViewController();
-        MakeGoodContext.getInstance().getTestClassCollector().addCollectorChangeListener(testOutlineViewController);
         for (IWorkbenchWindow window: PlatformUI.getWorkbench().getWorkbenchWindows()) {
             for (IWorkbenchPage page: window.getPages()) {
                 page.addPartListener(MakeGoodContext.getInstance().getStatusMonitor());
