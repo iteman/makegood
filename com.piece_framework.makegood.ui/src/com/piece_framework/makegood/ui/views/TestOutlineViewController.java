@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.core.ISourceModule;
-import org.eclipse.dltk.core.IType;
 import org.eclipse.php.internal.core.ast.nodes.Program;
 import org.eclipse.php.internal.ui.editor.IPhpScriptReconcilingListener;
 import org.eclipse.php.internal.ui.editor.PHPStructuredEditor;
@@ -32,7 +31,6 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
  */
 public class TestOutlineViewController implements IPartListener2 {
     private static final String NAME = "MakeGood Test Outline Update";
-    private IEditorPart activePHPEditor;
 
     @SuppressWarnings("restriction")
     @Override
@@ -51,7 +49,7 @@ public class TestOutlineViewController implements IPartListener2 {
             public void reconciled(final Program program,
                                    boolean forced,
                                    IProgressMonitor progressMonitor) {
-                new UIJob("MakeGood Update Test Outline") {
+                new UIJob(NAME) {
                     @Override
                     public IStatus runInUIThread(IProgressMonitor monitor) {
                         updateTestOutline(program.getSourceModule());
@@ -97,16 +95,5 @@ public class TestOutlineViewController implements IPartListener2 {
         if (view != null) {
             view.updateTestOutline(module);
         }
-    }
-
-    private boolean existsTypeInEditor(IType type, IEditorPart editor) {
-        EditorParser parser = new EditorParser(editor);
-        if (parser.getTypes() == null) return false;
-        for (IType typeInEditor: parser.getTypes()) {
-            if (type.getElementName().equals(typeInEditor.getElementName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
