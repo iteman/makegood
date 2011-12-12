@@ -27,8 +27,10 @@ import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.ISourceRange;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ModelException;
+import org.eclipse.dltk.ui.DLTKUIPlugin;
+import org.eclipse.dltk.ui.ScriptElementLabels;
+import org.eclipse.dltk.ui.viewsupport.AppearanceAwareLabelProvider;
 import org.eclipse.dltk.ui.viewsupport.DecoratingModelLabelProvider;
-import org.eclipse.dltk.ui.viewsupport.ScriptUILabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -79,7 +81,14 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         viewer = new TreeViewer(parent);
         viewer.setContentProvider(new HierarchyContentProvider());
-        viewer.setLabelProvider(new DecoratingModelLabelProvider(new ScriptUILabelProvider()));
+        viewer.setLabelProvider(
+            new DecoratingModelLabelProvider(
+                new AppearanceAwareLabelProvider(
+                    AppearanceAwareLabelProvider.DEFAULT_TEXTFLAGS
+                    | ScriptElementLabels.F_APP_TYPE_SIGNATURE
+                    | ScriptElementLabels.ALL_CATEGORY,
+                    AppearanceAwareLabelProvider.DEFAULT_IMAGEFLAGS,
+                    DLTKUIPlugin.getDefault().getPreferenceStore())));
         TreeEventListener eventListener = new TreeEventListener();
         viewer.addSelectionChangedListener(eventListener);
         viewer.addDoubleClickListener(eventListener);
