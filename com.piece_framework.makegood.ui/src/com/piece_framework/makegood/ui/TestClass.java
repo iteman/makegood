@@ -47,120 +47,120 @@ import com.piece_framework.makegood.core.TestingFramework;
  * @since 1.x.0
  */
 public class TestClass implements IType {
-    private IType type;
+    private IType origin;
     private IType baseType;
     private IModelElement[] children;
 
     public TestClass(IType type) {
-        this.type = type;
-        while (this.type instanceof TestClass) {
-            this.type = ((TestClass) this.type).type;
+        this.origin = type;
+        while (this.origin instanceof TestClass) {
+            this.origin = ((TestClass) this.origin).origin;
         }
     }
 
     @Override
     public IPath getPath() {
-        return type.getPath();
+        return origin.getPath();
     }
 
     @Override
     public ISourceRange getNameRange() throws ModelException {
-        return type.getNameRange();
+        return origin.getNameRange();
     }
 
     @Override
     public int getFlags() throws ModelException {
-        return type.getFlags();
+        return origin.getFlags();
     }
 
     @Override
     public IType getDeclaringType() {
-        return createTestClass(type.getDeclaringType());
+        return createTestClass(origin.getDeclaringType());
     }
 
     @Override
     public ISourceModule getSourceModule() {
-        return type.getSourceModule();
+        return origin.getSourceModule();
     }
 
     @Override
     public IType getType(String name, int occurrenceCount) {
-        return createTestClass(type.getType(name, occurrenceCount));
+        return createTestClass(origin.getType(name, occurrenceCount));
     }
 
     @Override
     public int getElementType() {
-        return type.getElementType();
+        return origin.getElementType();
     }
 
     @Override
     public String getElementName() {
-        return type.getElementName();
+        return origin.getElementName();
     }
 
     @Override
     public IModelElement getParent() {
-        return type.getParent();
+        return origin.getParent();
     }
 
     @Override
     public boolean isReadOnly() {
-        return type.isReadOnly();
+        return origin.isReadOnly();
     }
 
     @Override
     public IResource getResource() {
-        return type.getResource();
+        return origin.getResource();
     }
 
     @Override
     public boolean exists() {
-        return type.exists();
+        return origin.exists();
     }
 
     @Override
     public IModelElement getAncestor(int ancestorType) {
-        return type.getAncestor(ancestorType);
+        return origin.getAncestor(ancestorType);
     }
 
     @Override
     public IOpenable getOpenable() {
-        return type.getOpenable();
+        return origin.getOpenable();
     }
 
     @Override
     public IScriptModel getModel() {
-        return type.getModel();
+        return origin.getModel();
     }
 
     @Override
     public IScriptProject getScriptProject() {
-        return type.getScriptProject();
+        return origin.getScriptProject();
     }
 
     @Override
     public IResource getUnderlyingResource() throws ModelException {
-        return type.getUnderlyingResource();
+        return origin.getUnderlyingResource();
     }
 
     @Override
     public IResource getCorrespondingResource() throws ModelException {
-        return type.getCorrespondingResource();
+        return origin.getCorrespondingResource();
     }
 
     @Override
     public IModelElement getPrimaryElement() {
-        return type.getPrimaryElement();
+        return origin.getPrimaryElement();
     }
 
     @Override
     public String getHandleIdentifier() {
-        return type.getHandleIdentifier();
+        return origin.getHandleIdentifier();
     }
 
     @Override
     public boolean isStructureKnown() throws ModelException {
-        return type.isStructureKnown();
+        return origin.isStructureKnown();
     }
 
     @Override
@@ -179,17 +179,17 @@ public class TestClass implements IType {
     @Override
     @SuppressWarnings("rawtypes")
     public Object getAdapter(Class adapter) {
-        return type.getAdapter(adapter);
+        return origin.getAdapter(adapter);
     }
 
     @Override
     public ISourceRange getSourceRange() throws ModelException {
-        return type.getSourceRange();
+        return origin.getSourceRange();
     }
 
     @Override
     public String getSource() throws ModelException {
-        return type.getSource();
+        return origin.getSource();
     }
 
     @Override
@@ -201,7 +201,7 @@ public class TestClass implements IType {
             children.addAll(Arrays.asList(getMethods()));
 
             ITypeHierarchy hierarchy = newSupertypeHierarchy(new NullProgressMonitor());
-            for (IType supertype: hierarchy.getSupertypes(type)) {
+            for (IType supertype: hierarchy.getSupertypes(origin)) {
                 if (!TestingFramework.isTestClassSuperType(supertype)) {
                     children.add(createTestClass(supertype));
                 }
@@ -225,28 +225,28 @@ public class TestClass implements IType {
 
     @Override
     public String[] getSuperClasses() throws ModelException {
-        return type.getSuperClasses();
+        return origin.getSuperClasses();
     }
 
     @Override
     public IField getField(String name) {
-        return type.getField(name);
+        return origin.getField(name);
     }
 
     @Override
     public IField[] getFields() throws ModelException {
-        return type.getFields();
+        return origin.getFields();
     }
 
     @Override
     public IType getType(String name) {
-        return createTestClass(type.getType(name));
+        return createTestClass(origin.getType(name));
     }
 
     @Override
     public IType[] getTypes() throws ModelException {
         List<IType> types= new ArrayList<IType>();
-        for (IType type: this.type.getTypes()) {
+        for (IType type: this.origin.getTypes()) {
             types.add(createTestClass(type));
         }
         return types.toArray(new IType[0]);
@@ -254,15 +254,15 @@ public class TestClass implements IType {
 
     @Override
     public IMethod getMethod(String name) {
-        return createTestMethod(type.getMethod(name));
+        return createTestMethod(origin.getMethod(name));
     }
 
     @Override
     public IMethod[] getMethods() throws ModelException {
         List<IMethod> methods = new ArrayList<IMethod>();
-        if (type.getResource() == null) return methods.toArray(new IMethod[0]);
-        TestingFramework testingFramework = new MakeGoodProperty(type.getResource()).getTestingFramework();
-        for (IMethod method: type.getMethods()) {
+        if (origin.getResource() == null) return methods.toArray(new IMethod[0]);
+        TestingFramework testingFramework = new MakeGoodProperty(origin.getResource()).getTestingFramework();
+        for (IMethod method: origin.getMethods()) {
             if (testingFramework.isTestMethod(method)) methods.add(createTestMethod(method));
         }
         return methods.toArray(new IMethod[0]);
@@ -270,12 +270,12 @@ public class TestClass implements IType {
 
     @Override
     public String getFullyQualifiedName(String enclosingTypeSeparator) {
-        return type.getFullyQualifiedName(enclosingTypeSeparator);
+        return origin.getFullyQualifiedName(enclosingTypeSeparator);
     }
 
     @Override
     public String getFullyQualifiedName() {
-        return type.getFullyQualifiedName();
+        return origin.getFullyQualifiedName();
     }
 
     @Override
@@ -287,7 +287,7 @@ public class TestClass implements IType {
                              int[] localVariableModifiers,
                              boolean isStatic,
                              CompletionRequestor requestor) throws ModelException {
-        type.codeComplete(
+        origin.codeComplete(
             snippet,
             insertion,
             position,
@@ -308,7 +308,7 @@ public class TestClass implements IType {
                              boolean isStatic,
                              CompletionRequestor requestor,
                              WorkingCopyOwner owner) throws ModelException {
-        type.codeComplete(
+        origin.codeComplete(
             snippet,
             insertion,
             position,
@@ -322,80 +322,80 @@ public class TestClass implements IType {
 
     @Override
     public IScriptFolder getScriptFolder() {
-        return type.getScriptFolder();
+        return origin.getScriptFolder();
     }
 
     @Override
     public String getTypeQualifiedName() {
-        return type.getTypeQualifiedName();
+        return origin.getTypeQualifiedName();
     }
 
     @Override
     public String getTypeQualifiedName(String enclosingTypeSeparator) {
-        return type.getTypeQualifiedName(enclosingTypeSeparator);
+        return origin.getTypeQualifiedName(enclosingTypeSeparator);
     }
 
     @Override
     public IMethod[] findMethods(IMethod method) {
-        return type.findMethods(method);
+        return origin.findMethods(method);
     }
 
     @Override
     public ITypeHierarchy loadTypeHierachy(InputStream input,
                                            IProgressMonitor monitor) throws ModelException {
-        return type.loadTypeHierachy(input, monitor);
+        return origin.loadTypeHierachy(input, monitor);
     }
 
     @Override
     public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws ModelException {
-        return type.newSupertypeHierarchy(monitor);
+        return origin.newSupertypeHierarchy(monitor);
     }
 
     @Override
     public ITypeHierarchy newSupertypeHierarchy(ISourceModule[] workingCopies,
                                                 IProgressMonitor monitor) throws ModelException {
-        return type.newSupertypeHierarchy(workingCopies, monitor);
+        return origin.newSupertypeHierarchy(workingCopies, monitor);
     }
 
     @Override
     public ITypeHierarchy newSupertypeHierarchy(WorkingCopyOwner owner,
                                                 IProgressMonitor monitor) throws ModelException {
-        return type.newSupertypeHierarchy(owner, monitor);
+        return origin.newSupertypeHierarchy(owner, monitor);
     }
 
     @Override
     public ITypeHierarchy newTypeHierarchy(IScriptProject project,
                                            IProgressMonitor monitor) throws ModelException {
-        return type.newTypeHierarchy(project, monitor);
+        return origin.newTypeHierarchy(project, monitor);
     }
 
     @Override
     public ITypeHierarchy newTypeHierarchy(IScriptProject project,
                                            WorkingCopyOwner owner,
                                            IProgressMonitor monitor) throws ModelException {
-        return type.newTypeHierarchy(project, owner, monitor);
+        return origin.newTypeHierarchy(project, owner, monitor);
     }
 
     @Override
     public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws ModelException {
-        return type.newTypeHierarchy(monitor);
+        return origin.newTypeHierarchy(monitor);
     }
 
     @Override
     public ITypeHierarchy newTypeHierarchy(ISourceModule[] workingCopies,
                                            IProgressMonitor monitor) throws ModelException {
-        return type.newTypeHierarchy(workingCopies, monitor);
+        return origin.newTypeHierarchy(workingCopies, monitor);
     }
 
     @Override
     public ITypeHierarchy newTypeHierarchy(WorkingCopyOwner owner,
                                            IProgressMonitor monitor) throws ModelException {
-        return type.newSupertypeHierarchy(owner, monitor);
+        return origin.newSupertypeHierarchy(owner, monitor);
     }
 
     @Override
     public INamespace getNamespace() throws ModelException {
-        return type.getNamespace();
+        return origin.getNamespace();
     }
 
     public static boolean isTestClass(IType type) {
@@ -418,7 +418,7 @@ public class TestClass implements IType {
 
     public boolean isSubtype(IType targetSuperType) throws ModelException {
         ITypeHierarchy hierarchy = newSupertypeHierarchy(new NullProgressMonitor());
-        for (IType superType: hierarchy.getAllSuperclasses(type)) {
+        for (IType superType: hierarchy.getAllSuperclasses(origin)) {
             if (superType.getElementName().equals(targetSuperType.getElementName())) {
                 return true;
             }
