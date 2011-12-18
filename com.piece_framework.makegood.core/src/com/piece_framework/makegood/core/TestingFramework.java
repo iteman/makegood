@@ -17,13 +17,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.ast.Modifiers;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
-import org.eclipse.dltk.core.ISourceModule;
 import org.eclipse.dltk.core.IType;
 import org.eclipse.dltk.core.ITypeHierarchy;
 import org.eclipse.dltk.core.ModelException;
@@ -184,35 +182,6 @@ public enum TestingFramework {
         for (String superType: superTypesOfAllTestingFrameworks) {
             if (type.getElementName().equals(superType)) return true;
         }
-        return false;
-    }
-
-    /**
-     * @since 1.x.0
-     */
-    public boolean hasTests(ISourceModule source) {
-        if (source == null) return false;
-        IResource resource = source.getResource();
-        if (resource == null) return false;
-        String[] testClassSuperTypes = getTestClassSuperTypes();
-
-        try {
-            for (IType type: source.getAllTypes()) {
-                // The PHPFlags class is not used because it fail the weaving.
-                int flag = type.getFlags();
-                boolean isNotClass = (flag & Modifiers.AccNameSpace) != 0
-                                     || (flag & Modifiers.AccInterface) != 0;
-                if (isNotClass) continue;
-                for (String testClassSuperType: testClassSuperTypes) {
-                    if (hasTests(type, testClassSuperType)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (ModelException e) {
-            Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
-        }
-
         return false;
     }
 
