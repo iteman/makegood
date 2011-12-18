@@ -219,6 +219,31 @@ public enum TestingFramework {
     /**
      * @since 1.x.0
      */
+    public boolean isTestClass(IType type) {
+        if (type== null) return false;
+        String[] testClassSuperTypes = getTestClassSuperTypes();
+
+        try {
+            // The PHPFlags class is not used because it fail the weaving.
+            int flag = type.getFlags();
+            boolean isNotClass = (flag & Modifiers.AccNameSpace) != 0
+                                 || (flag & Modifiers.AccInterface) != 0;
+            if (isNotClass) return false;
+            for (String testClassSuperType: testClassSuperTypes) {
+                if (hasTests(type, testClassSuperType)) {
+                    return true;
+                }
+            }
+        } catch (ModelException e) {
+            Activator.getDefault().getLog().log(new Status(Status.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+        }
+
+        return false;
+    }
+
+    /**
+     * @since 1.x.0
+     */
     public boolean isTestMethod(IMethod method) throws ModelException {
         if (method == null) return false;
         if (!hasTests(method.getSourceModule())) return false;
