@@ -399,10 +399,12 @@ public class TestClass implements IType {
     }
 
     public static boolean isTestClass(IType type) {
-        if (type == null || type.getResource() == null) return false;
+        if (type == null) return false;
         try {
             if (type.getFlags() != Modifiers.AccNameSpace) {
-                return new MakeGoodProperty(type.getResource()).getTestingFramework().hasTests(type.getSourceModule());
+                return new MakeGoodProperty(type.getResource()).getTestingFramework()
+                    .isTestClass(
+                        (type instanceof TestClass) ? ((TestClass) type).origin : type);
             } else {
                 for (IType child: type.getTypes()) {
                     if (isTestClass(child)) return true;

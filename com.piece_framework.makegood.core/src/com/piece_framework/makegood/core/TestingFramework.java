@@ -246,7 +246,8 @@ public enum TestingFramework {
      */
     public boolean isTestMethod(IMethod method) throws ModelException {
         if (method == null) return false;
-        if (!hasTests(method.getSourceModule())) return false;
+        if (!(method.getParent() instanceof IType)
+            || !isTestClass((IType) method.getParent())) return false;
 
         int flags = method.getFlags();
         if ((flags & Modifiers.AccPublic) == 0) return false;
