@@ -68,7 +68,7 @@ public enum TestingFramework {
                     type.getSourceRange().getOffset();
                 String target = method.getSourceModule().getSource().substring(
                     startIndex, method.getSourceRange().getOffset());
-                Pattern pattern = Pattern.compile("/\\*.+@test.+\\*/", Pattern.MULTILINE + Pattern.DOTALL);
+                Pattern pattern = Pattern.compile("/\\*\\*[ |\t|\n].*@test.*\\*/", Pattern.MULTILINE + Pattern.DOTALL);
                 Matcher matcher = pattern.matcher(target);
                 return matcher.find();
             }
