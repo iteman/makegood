@@ -164,6 +164,8 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         display.asyncExec(new Runnable() {
             public void run() {
+                if (viewer.getControl().isDisposed()) return;
+
                 viewer.setInput(null);
 
                 if (!ActiveEditor.isPHP()) return;
