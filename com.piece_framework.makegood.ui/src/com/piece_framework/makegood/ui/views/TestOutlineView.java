@@ -19,6 +19,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dltk.core.DLTKCore;
 import org.eclipse.dltk.core.ElementChangedEvent;
 import org.eclipse.dltk.core.IElementChangedListener;
@@ -113,19 +116,27 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         DLTKCore.addElementChangedListener(new IElementChangedListener() {
             @Override
             public void elementChanged(ElementChangedEvent event) {
-                Control control = viewer.getControl();
-                if (control == null || control.isDisposed()) return;
-
-                Display display = control.getDisplay();
-                if (display == null) return;
-
-                display.asyncExec(new Runnable() {
-                    public void run() {
-                        updateTestOutline();
-                    }
-                });
+                updateTestOutlineInUIThread();
             }
         });
+
+        initializeTestOutline();
+    }
+
+    private void initializeTestOutline() {
+        for (Job job: Job.getJobManager().find(null)) {
+            if (job.getName().startsWith("DLTK indexing")) {
+                job.addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void done(IJobChangeEvent event) {
+                        updateTestOutlineInUIThread();
+                    }
+                });
+                return;
+            }
+        }
+
+        updateTestOutline();
     }
 
     @Override
@@ -139,6 +150,20 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
             updateTestOutline();
             runningTest = false;
         }
+    }
+
+    private void updateTestOutlineInUIThread() {
+        Control control = viewer.getControl();
+        if (control == null || control.isDisposed()) return;
+
+        Display display = control.getDisplay();
+        if (display == null) return;
+
+        display.asyncExec(new Runnable() {
+            public void run() {
+                updateTestOutline();
+            }
+        });
     }
 
     public void updateTestOutline() {
