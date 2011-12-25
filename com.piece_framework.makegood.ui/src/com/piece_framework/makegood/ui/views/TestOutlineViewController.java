@@ -11,17 +11,10 @@
 
 package com.piece_framework.makegood.ui.views;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.dltk.core.ISourceModule;
-import org.eclipse.php.internal.core.ast.nodes.Program;
-import org.eclipse.php.internal.ui.editor.IPhpScriptReconcilingListener;
-import org.eclipse.php.internal.ui.editor.PHPStructuredEditor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
-import org.eclipse.ui.progress.UIJob;
 
 import com.piece_framework.makegood.ui.EditorParser;
 import com.piece_framework.makegood.ui.ide.ActiveEditor;
@@ -30,35 +23,10 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
  * @since 1.x.0
  */
 public class TestOutlineViewController implements IPartListener2 {
-    private static final String NAME = "MakeGood Test Outline Update";
-
-    @SuppressWarnings("restriction")
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
-        if (partRef.getId().equals(TestOutlineView.ID)) return;
-
         IEditorPart activePHPEditor = ActiveEditor.isPHP() ? ActiveEditor.get() : null;
         if (activePHPEditor == null) return;
-
-        ((PHPStructuredEditor) activePHPEditor).addReconcileListener(new IPhpScriptReconcilingListener() {
-            @Override
-            public void aboutToBeReconciled() {
-            }
-
-            @Override
-            public void reconciled(final Program program,
-                                   boolean forced,
-                                   IProgressMonitor progressMonitor) {
-                new UIJob(NAME) {
-                    @Override
-                    public IStatus runInUIThread(IProgressMonitor monitor) {
-                        updateTestOutline(program.getSourceModule());
-                        return Status.OK_STATUS;
-                    }
-                }.schedule();
-            }
-        });
-
         updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
     }
 

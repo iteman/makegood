@@ -19,6 +19,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.dltk.core.DLTKCore;
+import org.eclipse.dltk.core.ElementChangedEvent;
+import org.eclipse.dltk.core.IElementChangedListener;
 import org.eclipse.dltk.core.IMember;
 import org.eclipse.dltk.core.IMethod;
 import org.eclipse.dltk.core.IModelElement;
@@ -47,6 +50,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -104,6 +109,25 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         registerActions();
 
         MakeGoodContext.getInstance().addStatusChangeListener(this);
+
+        DLTKCore.addElementChangedListener(new IElementChangedListener() {
+            @Override
+            public void elementChanged(ElementChangedEvent event) {
+                Control control = viewer.getControl();
+                if (control == null || control.isDisposed()) return;
+
+                Display display = control.getDisplay();
+                if (display == null) return;
+
+                display.asyncExec(new Runnable() {
+                    public void run() {
+                        if (ActiveEditor.isPHP()) {
+                            updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
