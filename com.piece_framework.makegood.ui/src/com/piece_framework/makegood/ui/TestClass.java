@@ -41,6 +41,7 @@ import org.eclipse.dltk.core.ModelException;
 import org.eclipse.dltk.core.WorkingCopyOwner;
 
 import com.piece_framework.makegood.core.MakeGoodProperty;
+import com.piece_framework.makegood.core.PHPFlags;
 import com.piece_framework.makegood.core.TestingFramework;
 
 /**
@@ -401,7 +402,7 @@ public class TestClass implements IType {
     public static boolean isTestClass(IType type) {
         if (type == null) return false;
         try {
-            if (type.getFlags() != Modifiers.AccNameSpace) {
+            if (!PHPFlags.isNamespace(type.getFlags())) {
                 return new MakeGoodProperty(type.getResource()).getTestingFramework()
                     .isTestClass(
                         (type instanceof TestClass) ? ((TestClass) type).origin : type);
@@ -430,7 +431,7 @@ public class TestClass implements IType {
 
     public boolean isNamespace() {
         try {
-            return getFlags() == Modifiers.AccNameSpace;
+            return PHPFlags.isNamespace(getFlags());
         } catch (ModelException e) {
             return false;
         }
