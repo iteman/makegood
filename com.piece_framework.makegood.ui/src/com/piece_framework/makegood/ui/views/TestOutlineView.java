@@ -116,7 +116,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         DLTKCore.addElementChangedListener(new IElementChangedListener() {
             @Override
             public void elementChanged(ElementChangedEvent event) {
-                updateTestOutlineInUIThread();
+                updateTestOutline();
             }
         });
 
@@ -129,7 +129,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
                 job.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
-                        updateTestOutlineInUIThread();
+                        updateTestOutline();
                     }
                 });
                 return;
@@ -152,7 +152,10 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         }
     }
 
-    private void updateTestOutlineInUIThread() {
+    public void updateTestOutline() {
+        if (viewer == null) return;
+        if (viewer.getContentProvider() == null) return;
+
         Control control = viewer.getControl();
         if (control == null || control.isDisposed()) return;
 
@@ -161,35 +164,27 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         display.asyncExec(new Runnable() {
             public void run() {
-                updateTestOutline();
+                viewer.setInput(null);
+
+                if (!ActiveEditor.isPHP()) return;
+
+                ISourceModule module = EditorParser.createActiveEditorParser().getSourceModule();
+                List<TestClass> testClasses = new ArrayList<TestClass>();
+                try {
+                    for (IType type: module.getTypes()) {
+                        if (!TestClass.isTestClass(type)) continue;
+                        TestClass testClass = new TestClass(type);
+                        testClasses.add(testClass);
+                    }
+                } catch (ModelException e) {
+                    Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, e.getMessage(), e));
+                }
+                viewer.setInput(testClasses);
+                viewer.expandAll();
+
+                collectBaseTestClasses(testClasses);
             }
         });
-    }
-
-    public void updateTestOutline() {
-        if (viewer == null) return;
-        if (viewer.getContentProvider() == null) return;
-
-        viewer.setInput(null);
-
-        if (!ActiveEditor.isPHP()) return;
-
-        ISourceModule module = EditorParser.createActiveEditorParser().getSourceModule();
-        List<TestClass> testClasses = new ArrayList<TestClass>();
-        try {
-            for (IType type: module.getTypes()) {
-                if (!TestClass.isTestClass(type)) continue;
-                TestClass testClass = new TestClass(type);
-                testClasses.add(testClass);
-            }
-        } catch (ModelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        viewer.setInput(testClasses);
-        viewer.expandAll();
-
-        collectBaseTestClasses(testClasses);
     }
 
     private void registerActions() {
