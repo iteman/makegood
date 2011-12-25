@@ -11,13 +11,8 @@
 
 package com.piece_framework.makegood.ui.views;
 
-import org.eclipse.dltk.core.ISourceModule;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
-
-import com.piece_framework.makegood.ui.EditorParser;
-import com.piece_framework.makegood.ui.ide.ActiveEditor;
 
 /**
  * @since 1.x.0
@@ -25,9 +20,7 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
 public class TestOutlineViewController implements IPartListener2 {
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
-        IEditorPart activePHPEditor = ActiveEditor.isPHP() ? ActiveEditor.get() : null;
-        if (activePHPEditor == null) return;
-        updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
+        updateTestOutline();
     }
 
     @Override
@@ -58,10 +51,10 @@ public class TestOutlineViewController implements IPartListener2 {
     public void partInputChanged(IWorkbenchPartReference partRef) {
     }
 
-    private void updateTestOutline(ISourceModule module) {
+    private void updateTestOutline() {
         TestOutlineView view = (TestOutlineView) ViewOpener.find(TestOutlineView.ID);
         if (view != null) {
-            view.updateTestOutline(module);
+            view.updateTestOutline();
         }
     }
 }

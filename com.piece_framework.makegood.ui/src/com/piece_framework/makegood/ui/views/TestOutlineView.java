@@ -121,9 +121,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
                 display.asyncExec(new Runnable() {
                     public void run() {
-                        if (ActiveEditor.isPHP()) {
-                            updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
-                        }
+                        updateTestOutline();
                     }
                 });
             }
@@ -138,14 +136,12 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
         if (status == MakeGoodStatus.RunningTest) {
             runningTest = true;
         } else if (status == MakeGoodStatus.WaitingForTestRun && runningTest) {
-            if (ActiveEditor.isPHP()) {
-                updateTestOutline(EditorParser.createActiveEditorParser().getSourceModule());
-            }
+            updateTestOutline();
             runningTest = false;
         }
     }
 
-    public void updateTestOutline(ISourceModule module) {
+    public void updateTestOutline() {
         if (viewer == null) return;
         if (viewer.getContentProvider() == null) return;
 
@@ -153,6 +149,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         if (!ActiveEditor.isPHP()) return;
 
+        ISourceModule module = EditorParser.createActiveEditorParser().getSourceModule();
         List<TestClass> testClasses = new ArrayList<TestClass>();
         try {
             for (IType type: module.getTypes()) {
