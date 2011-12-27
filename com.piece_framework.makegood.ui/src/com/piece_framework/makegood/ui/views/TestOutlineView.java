@@ -74,7 +74,7 @@ import com.piece_framework.makegood.ui.ide.ActiveEditor;
 /**
  * @since 1.x.0
  */
-public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeListener {
+public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeListener, IElementChangedListener {
     public static final String ID = "com.piece_framework.makegood.ui.views.testOutlineView"; //$NON-NLS-1$
 
     private TreeViewer viewer;
@@ -113,12 +113,7 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
 
         MakeGoodContext.getInstance().addStatusChangeListener(this);
 
-        DLTKCore.addElementChangedListener(new IElementChangedListener() {
-            @Override
-            public void elementChanged(ElementChangedEvent event) {
-                updateTestOutline();
-            }
-        });
+        DLTKCore.addElementChangedListener(this);
 
         initializeTestOutline();
     }
@@ -136,6 +131,11 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
             }
         }
 
+        updateTestOutline();
+    }
+
+    @Override
+    public void elementChanged(ElementChangedEvent event) {
         updateTestOutline();
     }
 
