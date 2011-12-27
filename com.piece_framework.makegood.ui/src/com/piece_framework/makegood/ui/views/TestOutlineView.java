@@ -135,12 +135,16 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
     }
 
     @Override
-    public void elementChanged(ElementChangedEvent event) {
-        updateTestOutline();
-    }
+    public void setFocus() {}
 
     @Override
-    public void setFocus() {}
+    public void dispose() {
+        super.dispose();
+
+        MakeGoodContext.getInstance().removeStatusChangeListener(this);
+
+        DLTKCore.removeElementChangedListener(this);
+    }
 
     @Override
     public void statusChanged(MakeGoodStatus status) {
@@ -151,6 +155,12 @@ public class TestOutlineView extends ViewPart implements MakeGoodStatusChangeLis
             runningTest = false;
         }
     }
+
+    @Override
+    public void elementChanged(ElementChangedEvent event) {
+        updateTestOutline();
+    }
+
 
     public void updateTestOutline() {
         if (viewer == null) return;
