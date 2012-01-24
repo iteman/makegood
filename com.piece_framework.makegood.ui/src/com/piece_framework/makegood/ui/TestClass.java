@@ -411,33 +411,12 @@ public class TestClass implements IType {
     public static boolean isTestClass(IType type) {
         if (type == null || type.getResource() == null) return false;
         try {
-            if (type.getFlags() == Modifiers.AccNameSpace) {
+            if (type.getFlags() != Modifiers.AccNameSpace) {
+                return new MakeGoodProperty(type.getResource()).getTestingFramework().hasTests(type.getSourceModule());
+            } else {
                 for (IType child: type.getTypes()) {
                     if (isTestClass(child)) return true;
                 }
-            }
-        } catch (ModelException e) {}
-
-        String[] superClasses = null;
-        try {
-            superClasses = type.getSuperClasses();
-        } catch (ModelException e) {
-            return false;
-        }
-        if (superClasses == null || superClasses.length == 0) return false;
-
-        String[] testClassSuperTypes = new MakeGoodProperty(type.getResource()).getTestingFramework().getTestClassSuperTypes();
-        for (String testClassSuperType: testClassSuperTypes) {
-            for (String superClass: superClasses) {
-                if (testClassSuperType.equals(superClass)) return true;
-            }
-        }
-
-        try {
-            ITypeHierarchy hierarchy = type.newSupertypeHierarchy(new NullProgressMonitor());
-            IType target = (type instanceof TestClass) ? ((TestClass) type).type : type;
-            for (IType superType: hierarchy.getAllSuperclasses(target)) {
-                if (isTestClass(superType)) return true;
             }
         } catch (ModelException e) {}
         return false;
