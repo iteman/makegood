@@ -8,10 +8,16 @@
          <with
                variable="activeContexts">
             <iterate
+                  ifEmpty="false"
                   operator="or">
-               <equals
-                     value="org.eclipse.php.core.phpsource">
-               </equals>
+                <or>
+                    <equals
+                          value="org.eclipse.php.core.phpsource">
+                    </equals>
+                    <equals
+                          value="com.aptana.editor.php.editorContext">
+                    </equals>
+                </or>
             </iterate>
          </with>
       </definition>
@@ -323,6 +329,12 @@
             sequence="M3+M C">
       </key>
       <key
+            commandId="com.piece_framework.makegood.ui.commands.runTestFromEditorInContextCommand"
+            contextId="com.aptana.editor.php.editorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M C">
+      </key>
+      <key
             commandId="com.piece_framework.makegood.ui.commands.runAllTestsCommand"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
@@ -359,14 +371,32 @@
             sequence="M3+M L">
       </key>
       <key
+            commandId="com.piece_framework.makegood.ui.commands.runTestFromEditorInClassCommand"
+            contextId="com.aptana.editor.php.editorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M L">
+      </key>
+      <key
             commandId="com.piece_framework.makegood.ui.commands.runTestFromEditorInFileCommand"
             contextId="org.eclipse.php.core.phpsource"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M F">
       </key>
       <key
+            commandId="com.piece_framework.makegood.ui.commands.runTestFromEditorInFileCommand"
+            contextId="com.aptana.editor.php.editorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M F">
+      </key>
+      <key
             commandId="com.piece_framework.makegood.ui.commands.runRelatedTestFromEditorCommand"
             contextId="org.eclipse.php.core.phpsource"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M D">
+      </key>
+      <key
+            commandId="com.piece_framework.makegood.ui.commands.runRelatedTestFromEditorCommand"
+            contextId="com.aptana.editor.php.editorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M D">
       </key>
